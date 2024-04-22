@@ -9,7 +9,6 @@ A Web Project for Software 2.
 -   [Technologies Used](#technologies-used)
 -   [Installation](#installation)
 -   [Usage](#usage)
--   [Contributing](#contributing)
 
 # Fleet Management
 
@@ -43,14 +42,14 @@ The Fleet Management project consists of both the front end (client) and backend
 
 1. Clone the repository: `git clone https://github.com/your-username/fleet-management.git`
 2. Install the dependencies for the front end and backend:
-    - Front End:
+    - CLIENT SIDE (Front End):
     ```bash
     cd client
     ```
     ```bash
     npm install
     ```
-    - Backend:
+    - SERVER SIDE (Back End):
     ```bash
     cd client
     ```
@@ -59,7 +58,8 @@ The Fleet Management project consists of both the front end (client) and backend
     ```
 3. Configure the database connection in the backend.
 
--   create a .env file an put
+    - create a .env file an put
+
     ```bash
     DATABASE_URL = <YOUR_STRING__CONNECTION>
     ```
