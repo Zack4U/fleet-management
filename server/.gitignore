@@ -1,3 +1,41 @@
+# Node Modules
 node_modules
+
 # Keep environment variables out of version control
 .env
+
+# Ignore logs
+logs/
+
+# Ignore build output
+build/
+
+# Ignore dependencies
+npm-debug.log
+yarn-error.log
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore test coverage reports
+coverage/
+
+# Ignore production build files
+dist/
+
+# Ignore environment-specific files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore package lock files
+package-lock.json
+yarn.lock
