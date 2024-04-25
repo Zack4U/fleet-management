@@ -32,8 +32,9 @@ The Fleet Management project consists of both the front end (client) and backend
 
     -   HTML, CSS, JavaScript
     -   React.js
+    -   Tailwind CSS
 
--   Backend:
+-   Back End:
     -   Node.js
     -   Express.js
     -   Mongo DB
