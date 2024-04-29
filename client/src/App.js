@@ -1,19 +1,8 @@
 import "./App.css";
-import { UserCreateComponent } from "./components/users/UserCreateComponent";
-import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "./reducers";
-
-const store = configureStore({
-    reducer: rootReducer,
-});
+import UserCreateComponent from "./components/users/UserCreateComponent";
 
 function App() {
-    return (
-        <Provider store={store}>
-            <UserCreateComponent />
-        </Provider>
-    );
+    return <UserCreateComponent />;
 }
 
 export default App;
