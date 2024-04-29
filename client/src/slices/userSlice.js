@@ -8,48 +8,30 @@ const initialState = {
     second_lastname: "",
     avatar: "",
     current_password: "",
-    active_user: "false",
+    active_user: false,
 };
 
 const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        setEmail: (state, action) => {
-            state.email = action.payload;
+        addUser: (state, action) => {
+            state.email = action.payload.email;
+            state.first_name = action.payload.first_name;
+            state.second_name = action.payload.second_name;
+            state.first_lastname = action.payload.first_lastname;
+            state.second_lastname = action.payload.second_lastname;
+            state.avatar = action.payload.avatar;
+            state.current_password = action.payload.current_password;
+            console.log(state);
         },
-        setFirstName: (state, action) => {
-            state.first_name = action.payload;
-        },
-        setSecondName: (state, action) => {
-            state.second_name = action.payload;
-        },
-        setFirstLastName: (state, action) => {
-            state.first_lastname = action.payload;
-        },
-        setSecondLastName: (state, action) => {
-            state.second_lastname = action.payload;
-        },
-        setAvatar: (state, action) => {
-            state.avatar = action.payload;
-        },
-        setCurrentPassword: (state, action) => {
-            state.current_password = action.payload;
-        },
-        setActiveUser: (state, action) => {
-            state.active_user = action.payload;
-        },
+        getUser: (state, action) => {},
+        getUserById: (state, action) => {},
+        updateUser: (state, action) => {},
+        deleteUser: (state, action) => {},
     },
 });
 
-export const {
-    setEmail,
-    setFirstName,
-    setSecondName,
-    setFirstLastName,
-    setSecondLastName,
-    setAvatar,
-    setCurrentPassword,
-} = userSlice.actions;
-
+export const { addUser, getUser, getUserById, updateUser, deleteUser } =
+    userSlice.actions;
 export default userSlice.reducer;
