@@ -1,13 +1,26 @@
 import { PATHS } from "../utils/config";
 
 export class User {
-    baseAPI = PATHS.BASE_PATH;
-    usersPath = PATHS.API_ROUTES.USERS;
+    usersAPI = PATHS.BASE_PATH + PATHS.API_ROUTES.USERS;
 
-    createUser = async () => {
+    createUser = async (req) => {
         try {
-            const res = await fetch(`${this.baseAPI}${this.usersPath}`, {
+            const params = {
                 method: "POST",
+                body: formData,
+            };
+            const res = await fetch(this.usersAPI, params);
+            if (!res.ok) throw new Error(await res.text());
+            console.log(res);
+        } catch (error) {
+            console.log("Error creating user: ", error);
+        }
+    };
+
+    getUsers = async () => {
+        try {
+            const res = await fetch(this.usersAPI, {
+                method: "GET",
                 body: formData,
             });
             if (!res.ok) throw new Error(await res.text());
@@ -16,23 +29,39 @@ export class User {
         }
     };
 
-    getUsers = () => {
+    getUser = async () => {
         try {
-        } catch (error) {}
+            const res = await fetch(this.usersAPI, {
+                method: "GET",
+                body: formData,
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } catch (error) {
+            console.log("Error creating user: ", error);
+        }
     };
 
-    getUser = () => {
+    deleteUser = async () => {
         try {
-        } catch (error) {}
+            const res = await fetch(this.usersAPI, {
+                method: "DELETE",
+                body: formData,
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } catch (error) {
+            console.log("Error creating user: ", error);
+        }
     };
 
-    deleteUser = () => {
+    updateUser = async () => {
         try {
-        } catch (error) {}
-    };
-
-    updateUser = () => {
-        try {
-        } catch (error) {}
+            const res = await fetch(this.usersAPI, {
+                method: "PATCH",
+                body: formData,
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } catch (error) {
+            console.log("Error creating user: ", error);
+        }
     };
 }

@@ -1,7 +1,8 @@
 import "./App.css";
+import { UserCreateComponent } from "./components/users/UserCreateComponent";
 
 function App() {
-    return <h1>Hello World!</h1>;
+    return <UserCreateComponent />;
 }
 
 export default App;
