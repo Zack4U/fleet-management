@@ -1,4 +1,4 @@
-SERVER_IP = "localhost:3000/api";
+const SERVER_IP = "localhost:3000/api";
 
 export const PATHS = {
     BASE_PATH: `http://${SERVER_IP}`,
