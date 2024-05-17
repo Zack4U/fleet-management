@@ -3,7 +3,7 @@ import { addUser } from "../../slices/userSlice";
 import { useDispatch } from "react-redux";
 import { User } from "../../api/user";
 
-const UserCreateComponent = () => {
+export const UserCreateComponent = () => {
     const dispatch = useDispatch();
     const user = new User();
     const [formData, setFormData] = useState({
@@ -208,5 +208,3 @@ const UserCreateComponent = () => {
         </>
     );
 };
-
-export default UserCreateComponent;
