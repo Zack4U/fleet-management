@@ -9,6 +9,7 @@ const initialState = {
     avatar: "",
     current_password: "",
     active_user: false,
+    users: [],
 };
 
 const userSlice = createSlice({
@@ -25,13 +26,34 @@ const userSlice = createSlice({
             state.current_password = action.payload.current_password;
             console.log(state);
         },
-        getUser: (state, action) => {},
-        getUserById: (state, action) => {},
-        updateUser: (state, action) => {},
-        deleteUser: (state, action) => {},
+
+        getUsers: (state, action) => {
+            state.users = action.payload;
+        },
+
+        getUser: (state, action) => {
+            console.log(
+                "getUserById action triggered with id:",
+                action.payload
+            );
+        },
+
+        editUser: (state, action) => {
+            const { updatedUserData } = action.payload;
+            return {
+                ...state,
+                ...updatedUserData,
+            };
+        },
+
+        deleteUser: (state, action) => {
+            state.users = state.users.filter(
+                (user) => user.id !== action.payload
+            );
+        },
     },
 });
 
-export const { addUser, getUser, getUserById, updateUser, deleteUser } =
+export const { addUser, getUsers, getUser, editUser, deleteUser } =
     userSlice.actions;
 export default userSlice.reducer;
