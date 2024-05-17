@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const userRoutes = require("./routes/UserRoutes");
 
@@ -9,6 +10,9 @@ dotenv.config();
 
 // Create Express app
 const app = express();
+
+//
+app.use(cors());
 
 // parse application/json
 app.use(bodyParser.json());

@@ -22,12 +22,12 @@ router.get("/", UserController.getUsers);
 router.get("/:id", UserController.getUserById);
 
 // Create a new user
-router.post("/", upload.single("avatar"), UserController.createUser);
+router.post("/new", upload.single("avatar"), UserController.createUser);
 
 // Update a user by ID
-router.patch("/:id", upload.single("avatar"), UserController.updateUser);
+router.patch("/edit/:id", upload.single("avatar"), UserController.updateUser);
 
 // Delete a user by ID
-router.delete("/:id", UserController.deleteUser);
+router.delete("/delete/:id", UserController.deleteUser);
 
 module.exports = router;
