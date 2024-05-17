@@ -1,8 +1,8 @@
 import "./App.css";
-import UserCreateComponent from "./components/users/UserCreateComponent";
+import { UserListComponent } from "./components/users/UserListComponent";
 
 function App() {
-    return <UserCreateComponent />;
+    return <UserListComponent />;
 }
 
 export default App;

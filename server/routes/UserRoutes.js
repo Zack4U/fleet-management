@@ -30,4 +30,7 @@ router.patch("/edit/:id", upload.single("avatar"), UserController.updateUser);
 // Delete a user by ID
 router.delete("/delete/:id", UserController.deleteUser);
 
+// Obtener avatar por nombre
+router.get("/avatar/:file_name", UserController.getAvatar);
+
 module.exports = router;

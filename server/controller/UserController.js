@@ -70,11 +70,12 @@ const updateUser = async (req, res) => {
         first_lastname,
         second_lastname,
         current_password,
-        status,
+        active_user,
     } = req.body;
     const avatar = req.file
         ? req.file.filename
         : prisma.user.findUnique({ where: { id } }).avatar;
+    const active_user_boolean = active_user === "true";
     try {
         const updatedUser = await prisma.user.update({
             where: { id },
@@ -85,12 +86,13 @@ const updateUser = async (req, res) => {
                 first_lastname,
                 second_lastname,
                 current_password,
-                status,
+                active_user: active_user_boolean,
                 avatar,
             },
         });
         res.status(201).json(updatedUser);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Failed to update user" });
     }
 };
@@ -108,10 +110,16 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const getAvatar = async (req, res) => {
+    const { file_name } = req.params;
+    res.sendFile(file_name, { root: "uploads/avatars" });
+};
+
 module.exports = {
     getUsers,
     getUserById,
     createUser,
     updateUser,
     deleteUser,
+    getAvatar,
 };
