@@ -7,6 +7,7 @@ export class User {
     create = PATHS.USER_ROUTES.CREATE;
     update = PATHS.USER_ROUTES.UPDATE;
     delete = PATHS.USER_ROUTES.DELETE;
+    getAvatar = PATHS.USER_ROUTES.GET_AVATAR;
 
     addUser = async (formData) => {
         const URL = `${this.usersAPI}${this.create}`;
@@ -94,6 +95,23 @@ export class User {
             return data;
         } catch (error) {
             console.log("[USER API] Error updating user: ", error);
+        }
+    };
+
+    getAvatar = async (id) => {
+        const URL = `${this.usersAPI}${this.getAvatar}/${id}`;
+        console.log(`[USER API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[USER API] Error getting avatar: ", error);
         }
     };
 }

@@ -81,6 +81,7 @@ export const UserListComponent = () => {
             "second_lastname",
             selectedUser.second_lastname
         );
+        formDataToSubmit.append("role", selectedUser.role);
         formDataToSubmit.append("avatar", selectedUser.avatar);
         formDataToSubmit.append(
             "current_password",
@@ -163,6 +164,11 @@ export const UserListComponent = () => {
             title: "Second Lastname",
             dataIndex: "second_lastname",
             key: "second_lastname",
+        },
+        {
+            title: "Role",
+            dataIndex: "role",
+            key: "role",
         },
         {
             title: "Active",
@@ -250,6 +256,13 @@ export const UserListComponent = () => {
                             <Input
                                 name="second_lastname"
                                 value={selectedUser.second_lastname}
+                                onChange={handleChange}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Role">
+                            <Input
+                                name="role"
+                                value={selectedUser.role}
                                 onChange={handleChange}
                             />
                         </Form.Item>

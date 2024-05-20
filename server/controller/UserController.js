@@ -36,10 +36,11 @@ const createUser = async (req, res) => {
         second_name,
         first_lastname,
         second_lastname,
+        role,
         current_password,
-        status,
+        active_user,
     } = req.body;
-    const avatar = req.file ? req.file.filename : null;
+    const avatar = req.file ? req.file.filename : "logo-coca_cola.jpg";
     try {
         const newUser = await prisma.user.create({
             data: {
@@ -48,8 +49,9 @@ const createUser = async (req, res) => {
                 second_name,
                 first_lastname,
                 second_lastname,
+                role,
                 current_password,
-                status,
+                active_user,
                 avatar,
             },
         });
@@ -69,6 +71,7 @@ const updateUser = async (req, res) => {
         second_name,
         first_lastname,
         second_lastname,
+        role,
         current_password,
         active_user,
     } = req.body;
@@ -85,6 +88,7 @@ const updateUser = async (req, res) => {
                 second_name,
                 first_lastname,
                 second_lastname,
+                role,
                 current_password,
                 active_user: active_user_boolean,
                 avatar,
@@ -111,8 +115,12 @@ const deleteUser = async (req, res) => {
 };
 
 const getAvatar = async (req, res) => {
-    const { file_name } = req.params;
-    res.sendFile(file_name, { root: "uploads/avatars" });
+    try {
+        const { file_name } = req.params;
+        res.sendFile(file_name, { root: "uploads/avatars" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to get avatar" });
+    }
 };
 
 module.exports = {
