@@ -6,6 +6,7 @@ const initialState = {
     second_name: "",
     first_lastname: "",
     second_lastname: "",
+    role: "",
     avatar: "",
     current_password: "",
     active_user: false,
@@ -22,6 +23,7 @@ const userSlice = createSlice({
             state.second_name = action.payload.second_name;
             state.first_lastname = action.payload.first_lastname;
             state.second_lastname = action.payload.second_lastname;
+            state.role = action.payload.role;
             state.avatar = action.payload.avatar;
             state.current_password = action.payload.current_password;
             console.log(state);

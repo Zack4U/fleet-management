@@ -11,5 +11,6 @@ export const PATHS = {
         CREATE: "/new",
         UPDATE: "/edit",
         DELETE: "/delete",
+        GET_AVATAR: "/avatar",
     },
 };

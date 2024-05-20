@@ -11,7 +11,8 @@ model user {
   second_name      String?
   first_lastname   String
   second_lastname  String?
-  avatar           String?
+  avatar           String?  @default("logo-coca_cola.jpg")
+  role             String   @default("driver")
   current_password String
   active_user      Boolean  @default(false)
   createdAt        DateTime @default(now())
