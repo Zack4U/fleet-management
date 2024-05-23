@@ -19,6 +19,140 @@ model user {
   updatedAt        DateTime @updatedAt
 }
 
+model vehicle {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  plate       String        @unique
+  brand       String
+  model       String
+  type        String
+  capacity    Int
+  statusId    VehicleStatus @default(AVAILABLE)
+  fuelId      String        @db.ObjectId
+  fuel        fuel          @relation(fields: [fuelId], references: [id])
+  Pneumatics  pneumatic[]
+  OilId       String        @db.ObjectId
+  Oil         oil           @relation(fields: [OilId], references: [id])
+  CoolingId   String        @db.ObjectId
+  Cooling     cooling       @relation(fields: [CoolingId], references: [id])
+  Lights      lights[]
+  BatteryId   String        @db.ObjectId
+  Battery     battery       @relation(fields: [BatteryId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  maintenance maintenance[]
+}
+
+model fuel {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  liters    Float
+  available Float
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vehicle   vehicle[]
+}
+
+model refueling {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  liters    Float
+  cost      Float
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model pneumatic {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String
+  model     String
+  size      String
+  type      String
+  wear      Int
+  pressure  Int
+  in_use    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vehicle   vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId String?  @db.ObjectId
+}
+
+model oil {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String
+  type      String
+  liters    Float
+  in_use    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vehicle   vehicle[]
+}
+
+model cooling {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String
+  liters    Float
+  in_use    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vehicle   vehicle[]
+}
+
+model lights {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String
+  type      String
+  in_use    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vehicle   vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId String?  @db.ObjectId
+}
+
+model battery {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String
+  type      String
+  voltage   Float
+  amperage  Float
+  in_use    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vehicle   vehicle[]
+}
+
+model maintenance {
+  id        String            @id @default(auto()) @map("_id") @db.ObjectId
+  type      MaintenanceType
+  cost      Float
+  notes     String?
+  status    MaintenanceStatus @default(PENDING)
+  vehicleId String            @db.ObjectId
+  vehicle   vehicle           @relation(fields: [vehicleId], references: [id])
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+  REGURAL
+  EMERGENCY
+  PNEUMATICS_CHANGE
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROCESS
+  FINISHED
+  CANCELED
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  UNAVAILABLE
+  IN_MAINTENANCE
+  IN_ROUTE
+}
+
 generator client {
   provider = "prisma-client-js"
 }
