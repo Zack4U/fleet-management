@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const userRoutes = require("./routes/UserRoutes");
+const vehicleRoutes = require("./routes/VehicleRoutes");
 
 // Load environment variables from .env filen
 dotenv.config();
@@ -19,6 +20,9 @@ app.use(bodyParser.json());
 
 //Configure User Routes
 app.use("/api/users", userRoutes);
+
+//Configure Vehicle Routes
+app.use("/api/vehicles", vehicleRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
