@@ -1,8 +1,12 @@
-import "./App.css";
-import { UserListComponent } from "./components/users/UserListComponent";
+import { BrowserRouter } from "react-router-dom";
+import { AdminRoutes } from "./routes/AdminRoutes";
 
 function App() {
-    return <UserListComponent />;
+    return (
+        <BrowserRouter>
+            <AdminRoutes />
+        </BrowserRouter>
+    );
 }
 
 export default App;
