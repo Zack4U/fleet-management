@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { User } from "../../api/user";
-import { getUsers, editUser, deleteUser } from "../../slices/userSlice";
+import { User } from "../../../api/user";
+import { getUsers, editUser, deleteUser } from "../../../slices/userSlice";
 import {
     Table,
     Avatar,
@@ -13,9 +13,11 @@ import {
     Switch,
     Upload,
     Button,
+    Select,
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
+import "tailwindcss/tailwind.css";
 
 const { confirm } = Modal;
 
@@ -129,6 +131,10 @@ export const UserListComponent = () => {
         }
     };
 
+    const handleRoleChange = (value) => {
+        setSelectedUser({ ...selectedUser, role: value });
+    };
+
     const columns = [
         {
             title: "Avatar",
@@ -202,7 +208,7 @@ export const UserListComponent = () => {
 
     return (
         <>
-            <div className="bg-blue-500">
+            <div className="bg-red-500">
                 <h1 className="display-4 text-center text-white text-2xl font-bold p-2">
                     Users List
                 </h1>
@@ -260,11 +266,18 @@ export const UserListComponent = () => {
                             />
                         </Form.Item>
                         <Form.Item label="Role">
-                            <Input
+                            <Select
                                 name="role"
                                 value={selectedUser.role}
-                                onChange={handleChange}
-                            />
+                                onChange={handleRoleChange}
+                            >
+                                <Select.Option value="driver">
+                                    Driver
+                                </Select.Option>
+                                <Select.Option value="admin">
+                                    Admin
+                                </Select.Option>
+                            </Select>
                         </Form.Item>
                         <Form.Item label="Active">
                             <Switch
