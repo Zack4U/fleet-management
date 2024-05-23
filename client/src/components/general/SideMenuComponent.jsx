@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Layout, Menu, Row, Switch } from "antd";
 import { UserOutlined, CarOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -13,7 +14,11 @@ const items = [
         children: [
             {
                 key: "g1",
-                label: "List",
+                label: <Link to="/admin/users">List</Link>,
+            },
+            {
+                key: "g2",
+                label: <Link to="/admin/users/new">Create</Link>,
             },
         ],
     },
@@ -23,8 +28,12 @@ const items = [
         icon: <CarOutlined />,
         children: [
             {
-                key: "g1",
-                label: "List",
+                key: "g3",
+                label: <Link to="/admin/vehicles">List</Link>,
+            },
+            {
+                key: "g4",
+                label: <Link to="/admin/vehicles/new">Create</Link>,
             },
         ],
     },
@@ -52,34 +61,57 @@ export const SideMenuComponent = () => {
             <Row
                 justify="center"
                 align="middle"
-                style={{ height: "64px", marginBottom: "16px" }}
+                style={{ height: "64px", marginBottom: "30px" }}
+                theme={theme}
             >
                 <img
                     src="http://localhost:3001/api/users/avatar/logo-coca_cola.jpg"
                     alt="Logo"
-                    style={{ height: collapsed ? "40px" : "80px" }}
+                    style={{
+                        margin: "10px",
+                        height: collapsed ? "40px" : "80px",
+                        borderRadius: "50%", // Esto hace que la imagen sea redonda
+                        objectFit: "cover", // Esto asegura que la imagen cubra todo el espacio disponible
+                    }}
                 />
             </Row>
-            <Menu
-                defaultSelectedKeys={["1"]}
-                mode="inline"
-                theme="light"
-                inlineCollapsed={collapsed}
+            <Row>
+                <Menu
+                    defaultSelectedKeys={["1"]}
+                    mode="inline"
+                    theme={theme}
+                    inlineCollapsed={collapsed}
+                >
+                    {items.map((item) => (
+                        <SubMenu
+                            key={item.key}
+                            icon={item.icon}
+                            title={item.label}
+                        >
+                            {item.children.map((child) => (
+                                <Menu.Item key={child.key}>
+                                    {child.label}
+                                </Menu.Item>
+                            ))}
+                        </SubMenu>
+                    ))}
+                </Menu>
+            </Row>
+
+            <Row
+                justify="center"
+                align="middle"
+                style={{ height: "64px", marginBottom: "16px" }}
+                theme={theme}
             >
-                {items.map((item) => (
-                    <SubMenu key={item.key} icon={item.icon} title={item.label}>
-                        {item.children.map((child) => (
-                            <Menu.Item key={child.key}>{child.label}</Menu.Item>
-                        ))}
-                    </SubMenu>
-                ))}
-            </Menu>
-            <Switch
-                checked={theme === "dark"}
-                onChange={changeTheme}
-                checkedChildren="Dark"
-                unCheckedChildren="Light"
-            />
+                <Switch
+                    checked={theme === "dark"}
+                    onChange={changeTheme}
+                    checkedChildren="Dark"
+                    unCheckedChildren="Light"
+                    inlineCollapsed={collapsed}
+                />
+            </Row>
         </Sider>
     );
 };

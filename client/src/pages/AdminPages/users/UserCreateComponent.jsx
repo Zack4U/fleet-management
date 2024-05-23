@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { addUser } from "../../slices/userSlice";
+import { addUser } from "../../../slices/userSlice";
 import { useDispatch } from "react-redux";
-import { User } from "../../api/user";
+import { User } from "../../../api/user";
+import { Form, Input, Button, Upload, Modal, Row, Breadcrumb } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 export const UserCreateComponent = () => {
     const dispatch = useDispatch();
@@ -16,195 +18,166 @@ export const UserCreateComponent = () => {
         current_password: "",
         active_user: false,
     });
-    const [fileName, setFileName] = useState("");
+    const [modalVisible, setModalVisible] = useState(false);
+    const [form] = Form.useForm();
 
     const handleChange = (event) => {
         setFormData({ ...formData, [event.target.id]: event.target.value });
     };
 
-    const handleAvatarChange = (event) => {
-        setFileName(event.target.files[0].name);
-        setFormData({ ...formData, avatar: event.target.files[0] });
+    const handleAvatarChange = (info) => {
+        setFormData({ ...formData, avatar: info.file.originFileObj });
     };
 
-    const handleCreateUser = async (event) => {
-        event.preventDefault();
+    const handleCreateUser = async (values) => {
         try {
-            const formDataToSubmit = new FormData();
-            formDataToSubmit.append("email", formData.email);
-            formDataToSubmit.append("first_name", formData.first_name);
-            formDataToSubmit.append("second_name", formData.second_name);
-            formDataToSubmit.append("first_lastname", formData.first_lastname);
-            formDataToSubmit.append(
-                "second_lastname",
-                formData.second_lastname
-            );
-            formDataToSubmit.append("avatar", formData.avatar);
-            formDataToSubmit.append(
-                "current_password",
-                formData.current_password
-            );
-            formDataToSubmit.append("active_user", formData.active_user);
+            console.log(values);
 
-            console.log(formDataToSubmit);
+            const formData = new FormData();
 
-            await user.createUser(formDataToSubmit).then(() => {
-                dispatch(addUser(formData));
-                setFormData({
-                    email: "",
-                    first_name: "",
-                    second_name: "",
-                    first_lastname: "",
-                    second_lastname: "",
-                    avatar: "",
-                    current_password: "",
-                    active_user: false,
-                });
-            });
+            for (const key in values) {
+                formData.append(key, values[key]);
+            }
+            if (values.avatar) {
+                formData.append("avatar", values.avatar.file.originFileObj);
+            }
+            const newUser = await user.addUser(formData);
+            dispatch(addUser(newUser));
+
+            if (newUser) {
+                form.resetFields();
+                setModalVisible(true);
+            }
         } catch (error) {
+            form.resetFields();
             console.log(error);
         }
     };
 
     return (
         <>
-            <div className="flex justify-center bg-slate-200">
-                <div className="w-1/2 bg-white shadow-md rounded-lg p-6">
-                    <form
-                        onSubmit={handleCreateUser}
-                        encType="multipart/form-data"
-                    >
-                        <h2 className="text-center text-gray-800 text-2xl font-bold mb-6">
-                            Create User
-                        </h2>
-                        <div className="mb-4">
-                            <label
-                                htmlFor="email"
-                                className="block text-gray-700"
-                            >
-                                Email:
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label
-                                htmlFor="first_name"
-                                className="block text-gray-700"
-                            >
-                                First Name:
-                            </label>
-                            <input
-                                type="text"
-                                id="first_name"
-                                value={formData.first_name}
-                                onChange={handleChange}
-                                required
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label
-                                htmlFor="second_name"
-                                className="block text-gray-700"
-                            >
-                                Second Name:
-                            </label>
-                            <input
-                                type="text"
-                                id="second_name"
-                                value={formData.second_name}
-                                onChange={handleChange}
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label
-                                htmlFor="first_lastname"
-                                className="block text-gray-700"
-                            >
-                                First Lastname:
-                            </label>
-                            <input
-                                type="text"
-                                id="first_lastname"
-                                value={formData.first_lastname}
-                                onChange={handleChange}
-                                required
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label
-                                htmlFor="second_lastname"
-                                className="block text-gray-700"
-                            >
-                                Second Lastname:
-                            </label>
-                            <input
-                                type="text"
-                                id="second_lastname"
-                                value={formData.second_lastname}
-                                onChange={handleChange}
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label
-                                htmlFor="avatar"
-                                className="block text-gray-700"
-                            >
-                                Avatar:
-                            </label>
-                            <input
-                                type="file"
-                                id="avatar"
-                                onChange={handleAvatarChange}
-                                required
-                                className="hidden"
-                            />
-                            <label
-                                htmlFor="avatar"
-                                className="cursor-pointer bg-indigo-500 text-white py-1 px-4 rounded-md"
-                            >
-                                Choose File
-                            </label>
-                            {fileName && (
-                                <span className="ml-4">{fileName}</span>
-                            )}
-                        </div>
-                        <div className="mb-4">
-                            <label
-                                htmlFor="current_password"
-                                className="block text-gray-700"
-                            >
-                                Password:
-                            </label>
-                            <input
-                                type="password"
-                                id="current_password"
-                                value={formData.current_password}
-                                onChange={handleChange}
-                                required
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-indigo-500 text-white py-2 px-4 rounded-md"
-                        >
-                            Submit
-                        </button>
-                    </form>
-                </div>
+            <div className="bg-red-500">
+                <h1 className="display-4 text-center text-white text-2xl font-bold p-2">
+                    Users Create
+                </h1>
             </div>
+            <Form
+                onFinish={handleCreateUser}
+                encType="multipart/form-data"
+                layout="vertical"
+            >
+                <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please input your email!",
+                        },
+                    ]}
+                >
+                    <Input
+                        type="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    label="First Name"
+                    name="first_name"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please input your first name!",
+                        },
+                    ]}
+                >
+                    <Input
+                        type="text"
+                        id="first_name"
+                        value={formData.first_name}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Item>
+                <Form.Item label="Second Name" name="second_name">
+                    <Input
+                        type="text"
+                        id="second_name"
+                        value={formData.second_name}
+                        onChange={handleChange}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label="First Lastname"
+                    name="first_lastname"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please input your first lastname!",
+                        },
+                    ]}
+                >
+                    <Input
+                        type="text"
+                        id="first_lastname"
+                        value={formData.first_lastname}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Item>
+                <Form.Item label="Second Lastname" name="second_lastname">
+                    <Input
+                        type="text"
+                        id="second_lastname"
+                        value={formData.second_lastname}
+                        onChange={handleChange}
+                    />
+                </Form.Item>
+                <Form.Item label="Choose File" name="avatar">
+                    <Upload
+                        beforeUpload={() => false}
+                        onChange={handleAvatarChange}
+                    >
+                        <Button icon={<UploadOutlined />}>Choose File</Button>
+                    </Upload>
+                </Form.Item>
+                <Form.Item
+                    label="Password"
+                    name="current_password"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please input your password!",
+                        },
+                    ]}
+                >
+                    <Input.Password
+                        id="current_password"
+                        value={formData.current_password}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Button type="primary" htmlType="submit" className="w-full">
+                        Submit
+                    </Button>
+                </Form.Item>
+            </Form>
+            <Modal
+                title="Success"
+                visible={modalVisible}
+                onOk={() => setModalVisible(false)}
+                onCancel={() => setModalVisible(false)}
+            >
+                <Row justify="center">
+                    <p>User created successfully!</p>
+                </Row>
+            </Modal>
         </>
     );
 };

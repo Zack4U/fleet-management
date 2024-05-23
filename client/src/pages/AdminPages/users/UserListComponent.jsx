@@ -17,6 +17,7 @@ import {
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
+import "tailwindcss/tailwind.css";
 
 const { confirm } = Modal;
 
