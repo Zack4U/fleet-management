@@ -26,6 +26,8 @@ model vehicle {
   model       String
   type        String
   capacity    Int
+  kilometers  Int
+  legals      String        @default("Up to Date")
   statusId    VehicleStatus @default(AVAILABLE)
   fuelId      String        @db.ObjectId
   fuel        fuel          @relation(fields: [fuelId], references: [id])
@@ -44,11 +46,12 @@ model vehicle {
 }
 
 model fuel {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
   liters    Float
   available Float
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  refueling refueling[]
   vehicle   vehicle[]
 }
 
@@ -59,6 +62,8 @@ model refueling {
   type      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  fuel      fuel?    @relation(fields: [fuelId], references: [id])
+  fuelId    String?  @db.ObjectId
 }
 
 model pneumatic {
