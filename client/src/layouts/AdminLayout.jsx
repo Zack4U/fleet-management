@@ -2,31 +2,33 @@ import React from "react";
 
 import { Layout, theme } from "antd";
 import { SideMenuComponent } from "../components/general/SideMenuComponent";
-const { Header, Content, Footer } = Layout;
+import { useContext } from "react";
+import { ThemeContext } from "../ThemeContext";
+
+const { Content, Footer } = Layout;
 
 export const AdminLayout = (props) => {
     const { children } = props;
-    const {
-        token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
+    const { theme } = useContext(ThemeContext);
+    const backgroundColor = theme === "light" ? "#fff" : "#001529";
     return (
         <Layout
             style={{
                 minHeight: "100vh",
+                backgroundColor: backgroundColor,
             }}
         >
             <SideMenuComponent />
-            <Layout>
-                <Header
-                    style={{
-                        padding: 0,
-                        background: colorBgContainer,
-                    }}
-                />
+            <Layout
+                style={{
+                    minHeight: "100vh",
+                }}
+            >
                 <Content
                     style={{
                         margin: "0 16px",
                     }}
+                    theme={theme}
                 >
                     {children}
                 </Content>

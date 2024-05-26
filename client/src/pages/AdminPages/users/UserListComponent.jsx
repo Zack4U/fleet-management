@@ -17,6 +17,8 @@ import {
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
+import { useContext } from "react";
+import { ThemeContext } from "../../../ThemeContext";
 import "tailwindcss/tailwind.css";
 
 const { confirm } = Modal;
@@ -27,7 +29,9 @@ export const UserListComponent = () => {
     const userApi = new User();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-
+    const { theme } = useContext(ThemeContext);
+    const backgroundColor = theme === "light" ? "#fff" : "#001529";
+    const color = theme === "light" ? "#000" : "#fff";
     useEffect(() => {
         const fetchUsers = async () => {
             try {

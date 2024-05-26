@@ -4,6 +4,7 @@ export const PATHS = {
     BASE_PATH: `http://${SERVER_IP}`,
     API_ROUTES: {
         USERS: "/users",
+        VEHICLES: "/vehicles",
     },
     USER_ROUTES: {
         GET: "/",
@@ -12,5 +13,13 @@ export const PATHS = {
         UPDATE: "/edit",
         DELETE: "/delete",
         GET_AVATAR: "/avatar",
+    },
+    VEHICLE_ROUTES: {
+        GET: "/",
+        GET_BY_ID: "/",
+        CREATE: "/new",
+        UPDATE: "/edit",
+        DELETE: "/delete",
+        GET_AVATAR: "/image",
     },
 };

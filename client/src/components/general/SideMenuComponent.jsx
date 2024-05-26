@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Layout, Menu, Row, Switch } from "antd";
 import { UserOutlined, CarOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { ThemeContext } from "../../ThemeContext";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -41,11 +43,7 @@ const items = [
 
 export const SideMenuComponent = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const [theme, setTheme] = useState("light");
-
-    const changeTheme = () => {
-        setTheme(theme === "light" ? "dark" : "light");
-    };
+    const { theme, changeTheme } = useContext(ThemeContext);
 
     const onCollapse = (collapsed) => {
         setCollapsed(collapsed);
