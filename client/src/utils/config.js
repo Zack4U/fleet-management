@@ -5,6 +5,7 @@ export const PATHS = {
     API_ROUTES: {
         USERS: "/users",
         VEHICLES: "/vehicles",
+        TASKS: "/tasks",
     },
     USER_ROUTES: {
         GET: "/",
@@ -21,5 +22,12 @@ export const PATHS = {
         UPDATE: "/edit",
         DELETE: "/delete",
         GET_AVATAR: "/image",
+    },
+    TASK_ROUTES: {
+        GET: "/",
+        GET_BY_ID: "/",
+        CREATE: "/new",
+        UPDATE: "/edit",
+        DELETE: "/delete",
     },
 };
