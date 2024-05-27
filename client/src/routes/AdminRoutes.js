@@ -4,7 +4,7 @@ import { AdminLayout } from "../layouts/AdminLayout";
 import { UserListComponent } from "../pages/AdminPages/users/UserListComponent";
 import { UserCreateComponent } from "../pages/AdminPages/users/UserCreateComponent";
 import { VehicleListComponent } from "../pages/AdminPages/vehicles/VehicleListComponent";
-import { VehicleCreateComponent } from "../pages/AdminPages/vehicles/VehiclesCreateComponent";
+import { VehicleCreateComponent } from "../pages/AdminPages/vehicles/VehicleCreateComponent";
 import { DragNDrop } from "../pages/AdminPages/tasks/DragNDrop";
 
 export const AdminRoutes = () => {
