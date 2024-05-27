@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Tooltip, Form, Input } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button, Modal, Form, Input, Select } from "antd";
+import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Task } from "../../../api/task";
+import { User } from "../../../api/user";
 import {
     addTask,
     deleteTask,
     editTask,
     getTasks,
 } from "../../../slices/taskSlice";
+import { getUser, getUsers } from "../../../slices/userSlice";
 
 import "./DragNDrop.css";
 
@@ -17,15 +19,28 @@ const { confirm } = Modal;
 export const DragNDrop = () => {
     const dispatch = useDispatch();
     const tasks = useSelector((state) => state.task.tasks);
+    const users = useSelector((state) => state.user.users);
     const taskApi = new Task();
+    const userApi = new User();
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isModalVisible2, setIsModalVisible2] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         body: "",
         list: 1,
+        userId: "",
     });
+
+    const getUserName = (userId) => {
+        const user = users.find((user) => user.id === userId);
+        return user
+            ? `${user.first_name} ${user.second_name || ""} ${
+                  user.first_lastname
+              } ${user.second_lastname || ""}`
+            : "Unknown user";
+    };
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -37,16 +52,29 @@ export const DragNDrop = () => {
             }
         };
 
+        const fetchUsers = async () => {
+            try {
+                const usersData = await userApi.getUsers();
+                dispatch(getUsers(usersData));
+            } catch (error) {
+                console.error("Failed to fetch users", error);
+            }
+        };
+
         fetchTasks();
+        fetchUsers();
     }, [dispatch]);
 
-    const getList = (list) => {
-        if (!tasks) {
-            return [];
-        }
+    const getList = useCallback(
+        (list) => {
+            if (!tasks) {
+                return [];
+            }
 
-        return tasks.filter((item) => item.list === list);
-    };
+            return tasks.filter((item) => item.list === list);
+        },
+        [tasks]
+    );
 
     const startDrag = (evt, item) => {
         evt.dataTransfer.setData("itemID", item.id);
@@ -84,6 +112,7 @@ export const DragNDrop = () => {
     };
 
     const handleCancel = () => {
+        setSelectedTask(null);
         setIsModalVisible(false);
     };
 
@@ -116,7 +145,11 @@ export const DragNDrop = () => {
             for (const key in values) {
                 formData.append(key, values[key]);
             }
+
             formData.append("list", 1);
+
+            console.log(formData);
+
             const newTask = await taskApi.addTask(formData);
             dispatch(addTask(newTask));
 
@@ -126,6 +159,52 @@ export const DragNDrop = () => {
         } catch (error) {
             console.log(error);
         }
+    };
+
+    const handleEdit = (id) => {
+        const task = tasks.find((task) => task.id === id);
+        console.log(task);
+        setSelectedTask(task);
+        setIsModalVisible2(true);
+    };
+
+    const handleOk = () => {
+        console.log(selectedTask);
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append("title", selectedTask.title);
+        formDataToSubmit.append("body", selectedTask.body);
+        formDataToSubmit.append("list", selectedTask.list);
+        formDataToSubmit.append("userId", selectedTask.userId);
+        console.log(formDataToSubmit);
+        taskApi
+            .updateTask(selectedTask.id, formDataToSubmit)
+            .then((result) => {
+                console.log(result);
+                dispatch(
+                    editTask({
+                        taskId: selectedTask.id,
+                        updateTaskData: result,
+                    })
+                );
+                setIsModalVisible(false);
+                setSelectedTask(null);
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error("Failed to edit vehicle", error);
+            });
+    };
+
+    const handleChange = (e) => {
+        setSelectedTask({
+            ...selectedTask,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleUserChange = (value) => {
+        setSelectedTask({ ...selectedTask, userId: value });
+        console.log(selectedTask);
     };
 
     return (
@@ -171,6 +250,17 @@ export const DragNDrop = () => {
                                     }}
                                     onClick={() => handleDelete(item.id)}
                                 />
+                                <EditOutlined
+                                    className="button-right"
+                                    style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => handleEdit(item.id)}
+                                />
+                                <p className="user">
+                                    {getUserName(item.userId)}
+                                </p>
                                 <p className="body">{item.body}</p>
                             </div>
                         ))}
@@ -203,6 +293,17 @@ export const DragNDrop = () => {
                                     }}
                                     onClick={() => handleDelete(item.id)}
                                 />
+                                <EditOutlined
+                                    className="button-right"
+                                    style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => handleEdit(item.id)}
+                                />
+                                <p className="user">
+                                    {getUserName(item.userId)}
+                                </p>
                                 <p className="body">{item.body}</p>
                             </div>
                         ))}
@@ -235,6 +336,17 @@ export const DragNDrop = () => {
                                     }}
                                     onClick={() => handleDelete(item.id)}
                                 />
+                                <EditOutlined
+                                    className="button-right"
+                                    style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => handleEdit(item.id)}
+                                />
+                                <p className="user">
+                                    {getUserName(item.userId)}
+                                </p>
                                 <p className="body">{item.body}</p>
                             </div>
                         ))}
@@ -287,8 +399,79 @@ export const DragNDrop = () => {
                             required
                         />
                     </Form.Item>
+                    <Form.Item
+                        label="User"
+                        name="user"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please select a user!",
+                            },
+                        ]}
+                    >
+                        <Select
+                            placeholder="Select a user"
+                            options={users.map((user) => ({
+                                value: user.id,
+                                label:
+                                    user.first_name +
+                                    " " +
+                                    (user.second_name || "") +
+                                    " " +
+                                    user.first_lastname +
+                                    " " +
+                                    (user.second_lastname || ""),
+                            }))}
+                        />
+                    </Form.Item>
                 </Form>
             </Modal>
+            {selectedTask && (
+                <Modal
+                    title="Edit Task"
+                    visible={isModalVisible2}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                >
+                    <Form>
+                        <Form.Item label="Title">
+                            <Input
+                                type="text"
+                                name="title"
+                                value={selectedTask.title}
+                                onChange={handleChange}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Content">
+                            <Input
+                                type="text"
+                                name="body"
+                                value={selectedTask.body}
+                                onChange={handleChange}
+                            />
+                        </Form.Item>
+                        <Form.Item label="User">
+                            <Select
+                                placeholder="Select a user"
+                                value={selectedTask.userId}
+                                name="userId"
+                                onChange={handleUserChange}
+                                options={users.map((user) => ({
+                                    value: user.id,
+                                    label:
+                                        user.first_name +
+                                        " " +
+                                        (user.second_name || "") +
+                                        " " +
+                                        user.first_lastname +
+                                        " " +
+                                        (user.second_lastname || ""),
+                                }))}
+                            />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+            )}
         </>
     );
 };
