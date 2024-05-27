@@ -14,6 +14,7 @@ import {
     Upload,
     Button,
     Select,
+    Badge,
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
@@ -107,7 +108,7 @@ export const UserListComponent = () => {
                 );
                 setIsModalVisible(false);
                 setSelectedUser(null);
-                // window.location.reload();
+                window.location.reload();
             })
             .catch((error) => {
                 console.error("Failed to edit user", error);
@@ -185,7 +186,12 @@ export const UserListComponent = () => {
             dataIndex: "active_user",
             key: "active_user",
             render: (text, record) => (
-                <span>{record.active_user ? "Yes" : "No"}</span>
+                <div className="flex items-center justify-center">
+                    <Badge color={record.active_user ? "green" : "gray"} />
+                    <span className="ml-2">
+                        {record.active_user ? "Yes" : "No"}
+                    </span>
+                </div>
             ),
         },
         {
