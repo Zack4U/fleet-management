@@ -1,47 +1,55 @@
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
-
-const createFuel = async (data) => {
+const createFuel = async (req, res) => {
     try {
+        const data = req.body;
         const fuel = await prisma.fuel.create({ data });
-        return fuel;
+        res.status(201).json(fuel);
     } catch (error) {
         console.error("Error creating fuel:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const getFuelById = async (id) => {
+const getFuelById = async (req, res) => {
     try {
+        const id = req.params.id;
         const fuel = await prisma.fuel.findUnique({ where: { id } });
-        return fuel;
+        if (fuel) {
+            res.status(201).json(fuel);
+        } else {
+            res.status(404).json({ error: "Fuel not found" });
+        }
     } catch (error) {
         console.error("Error retrieving fuel:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const updateFuel = async (id, data) => {
+const updateFuel = async (req, res) => {
     try {
+        const id = req.params.id;
+        const data = req.body;
         const fuel = await prisma.fuel.update({
             where: { id },
             data,
         });
-        return fuel;
+        res.status(201).json(fuel);
     } catch (error) {
         console.error("Error updating fuel:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const deleteFuel = async (id) => {
+const deleteFuel = async (req, res) => {
     try {
+        const id = req.params.id;
         const fuel = await prisma.fuel.delete({ where: { id } });
-        return fuel;
+        res.json({ message: "Fuel deleted" });
     } catch (error) {
         console.error("Error deleting fuel:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 

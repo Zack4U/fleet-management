@@ -2,46 +2,55 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-const createPneumatic = async (data) => {
+const createPneumatic = async (req, res) => {
     try {
+        const data = req.body;
         const pneumatic = await prisma.pneumatic.create({ data });
-        return pneumatic;
+        res.status(201).json(pneumatic);
     } catch (error) {
         console.error("Error creating pneumatic:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const getPneumaticById = async (id) => {
+const getPneumaticById = async (req, res) => {
     try {
+        const id = req.params.id;
         const pneumatic = await prisma.pneumatic.findUnique({ where: { id } });
-        return pneumatic;
+        if (pneumatic) {
+            res.json(pneumatic);
+        } else {
+            res.status(404).json({ error: "Pneumatic not found" });
+        }
     } catch (error) {
         console.error("Error retrieving pneumatic:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const updatePneumatic = async (id, data) => {
+const updatePneumatic = async (req, res) => {
     try {
+        const id = req.params.id;
+        const data = req.body;
         const pneumatic = await prisma.pneumatic.update({
             where: { id },
             data,
         });
-        return pneumatic;
+        res.json(pneumatic);
     } catch (error) {
         console.error("Error updating pneumatic:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const deletePneumatic = async (id) => {
+const deletePneumatic = async (req, res) => {
     try {
+        const id = req.params.id;
         const pneumatic = await prisma.pneumatic.delete({ where: { id } });
-        return pneumatic;
+        res.status(201).json({ message: "Pneumatic deleted" });
     } catch (error) {
         console.error("Error deleting pneumatic:", error);
-        throw error;
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 

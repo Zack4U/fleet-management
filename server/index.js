@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const userRoutes = require("./routes/UserRoutes");
 const vehicleRoutes = require("./routes/VehicleRoutes");
+const taskRoutes = require("./routes/TaskRoutes");
 
 // Load environment variables from .env filen
 dotenv.config();
@@ -23,6 +24,9 @@ app.use("/api/users", userRoutes);
 
 //Configure Vehicle Routes
 app.use("/api/vehicles", vehicleRoutes);
+
+//Configure Task Routes
+app.use("/api/tasks", taskRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

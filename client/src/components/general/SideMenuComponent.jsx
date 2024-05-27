@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout, Menu, Row, Switch } from "antd";
-import { UserOutlined, CarOutlined } from "@ant-design/icons";
+import { UserOutlined, CarOutlined, ProjectOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { ThemeContext } from "../../ThemeContext";
@@ -36,6 +36,17 @@ const items = [
             {
                 key: "g4",
                 label: <Link to="/admin/vehicles/new">Create</Link>,
+            },
+        ],
+    },
+    {
+        key: "sub3",
+        label: "Tasks",
+        icon: <ProjectOutlined />,
+        children: [
+            {
+                key: "g5",
+                label: <Link to="/admin/tasks">List</Link>,
             },
         ],
     },

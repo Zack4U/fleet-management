@@ -36,10 +36,13 @@ export const UserCreateComponent = () => {
             const formData = new FormData();
 
             for (const key in values) {
+                if (values[key] === undefined) {
+                    continue;
+                }
                 formData.append(key, values[key]);
             }
             if (values.avatar) {
-                formData.append("avatar", values.avatar.file.originFileObj);
+                formData.append("avatar", values.avatar.file);
             }
             const newUser = await user.addUser(formData);
             dispatch(addUser(newUser));

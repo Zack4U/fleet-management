@@ -164,6 +164,15 @@ enum VehicleStatus {
   IN_ROUTE
 }
 
+model Task {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  body      String
+  list      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 generator client {
   provider = "prisma-client-js"
 }
