@@ -1,14 +1,16 @@
 const { PrismaClient } = require("@prisma/client");
-const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
 const createTask = async (req, res) => {
+    const { title, body, list } = req.body;
     try {
-        const task = await prisma.task.create({ data: req.body });
+        const task = await prisma.task.create({
+            data: { title, body, list: parseInt(list) },
+        });
         res.status(201).json(task);
     } catch (error) {
-        console.error("Error creating task:", error);
+        console.error(error);
         res.status(500).json({ error: "Error creating task" });
     }
 };
@@ -41,11 +43,15 @@ const getTaskById = async (req, res) => {
 
 const updateTask = async (req, res) => {
     const { id } = req.params;
-    const data = req.body;
+    const { title, body, list } = req.body;
     try {
         const task = await prisma.task.update({
-            where: { id: parseInt(id) },
-            data,
+            where: { id },
+            data: {
+                title,
+                body,
+                list: parseInt(list),
+            },
         });
         res.status(201).json(task);
     } catch (error) {
@@ -57,7 +63,7 @@ const updateTask = async (req, res) => {
 const deleteTask = async (req, res) => {
     const { id } = req.params;
     try {
-        const task = await prisma.task.delete({ where: { id: parseInt(id) } });
+        const task = await prisma.task.delete({ where: { id } });
         res.status(201).json({ message: "Task deleted successfully" });
     } catch (error) {
         console.error("Error deleting task:", error);
