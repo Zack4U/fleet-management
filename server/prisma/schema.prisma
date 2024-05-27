@@ -17,6 +17,7 @@ model user {
   active_user      Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  Routes           route[]
 }
 
 model vehicle {
@@ -28,7 +29,7 @@ model vehicle {
   capacity    Int
   kilometers  Int
   legals      String        @default("Up to Date")
-  statusId    VehicleStatus @default(AVAILABLE)
+  statusId    vehicleStatus @default(AVAILABLE)
   fuelId      String        @db.ObjectId
   fuel        fuel          @relation(fields: [fuelId], references: [id])
   Pneumatics  pneumatic[]
@@ -43,6 +44,7 @@ model vehicle {
   image       String?       @default("camion-coca_cola.jpg")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  Routes      route[]
 }
 
 model fuel {
@@ -132,17 +134,32 @@ model battery {
 
 model maintenance {
   id        String            @id @default(auto()) @map("_id") @db.ObjectId
-  type      MaintenanceType
+  type      maintenanceType
   cost      Float
   notes     String?
-  status    MaintenanceStatus @default(PENDING)
+  status    maintenanceStatus @default(PENDING)
   vehicleId String            @db.ObjectId
   vehicle   vehicle           @relation(fields: [vehicleId], references: [id])
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }
 
-enum MaintenanceType {
+model route {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  vehicleId     String      @db.ObjectId
+  vehicle       vehicle     @relation(fields: [vehicleId], references: [id])
+  driverId      String      @db.ObjectId
+  driver        user        @relation(fields: [driverId], references: [id])
+  startLocation String
+  endLocation   String
+  startDateTime DateTime
+  endDateTime   DateTime?
+  status        routeStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum maintenanceType {
   PREVENTIVE
   CORRECTIVE
   REGURAL
@@ -150,21 +167,28 @@ enum MaintenanceType {
   PNEUMATICS_CHANGE
 }
 
-enum MaintenanceStatus {
+enum maintenanceStatus {
   PENDING
   IN_PROCESS
   FINISHED
   CANCELED
 }
 
-enum VehicleStatus {
+enum vehicleStatus {
   AVAILABLE
   UNAVAILABLE
   IN_MAINTENANCE
   IN_ROUTE
 }
 
-model Task {
+enum routeStatus {
+  PENDING
+  IN_ROUTE
+  FINISHED
+  CANCELED
+}
+
+model task {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   body      String
