@@ -1,6 +1,8 @@
 const express = require("express");
 const UserController = require("../controller/UserController");
 const multer = require("multer");
+const AuthMiddleware = require("../middleware/AuthMiddleware");
+const isAdmin = require("../middleware/isAdmin");
 const router = express.Router();
 
 // Multer configuration
@@ -15,22 +17,31 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+router.use(AuthMiddleware);
+
 // Get all users
-router.get("/", UserController.getUsers);
+router.get("/", isAdmin, UserController.getUsers);
 
 // Get a single user by ID
-router.get("/:id", UserController.getUserById);
+router.get("/:id", isAdmin, UserController.getUserById);
 
 // Create a new user
-router.post("/new", upload.single("avatar"), UserController.createUser);
+router.post(
+    "/new",
+    isAdmin,
+    upload.single("avatar"),
+    UserController.createUser
+);
 
 // Update a user by ID
-router.patch("/edit/:id", upload.single("avatar"), UserController.updateUser);
+router.patch(
+    "/edit/:id",
+    isAdmin,
+    upload.single("avatar"),
+    UserController.updateUser
+);
 
 // Delete a user by ID
-router.delete("/delete/:id", UserController.deleteUser);
-
-// Obtener avatar por nombre
-router.get("/avatar/:file_name", UserController.getAvatar);
+router.delete("/delete/:id", isAdmin, UserController.deleteUser);
 
 module.exports = router;
