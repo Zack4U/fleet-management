@@ -8,6 +8,10 @@ export class User {
     update = PATHS.USER_ROUTES.UPDATE;
     delete = PATHS.USER_ROUTES.DELETE;
     getAvatar = PATHS.USER_ROUTES.GET_AVATAR;
+    login = PATHS.USER_ROUTES.LOGIN;
+    logout = PATHS.USER_ROUTES.LOGOUT;
+
+    token = localStorage.getItem("token");
 
     addUser = async (formData) => {
         const URL = `${this.usersAPI}${this.create}`;
@@ -17,6 +21,9 @@ export class User {
             const params = {
                 method: "POST",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -34,6 +41,9 @@ export class User {
         try {
             const params = {
                 method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -51,6 +61,9 @@ export class User {
         try {
             const params = {
                 method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -68,6 +81,9 @@ export class User {
         try {
             const params = {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -87,6 +103,9 @@ export class User {
             const params = {
                 method: "PATCH",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -113,5 +132,42 @@ export class User {
         } catch (error) {
             console.log("[USER API] Error getting avatar: ", error);
         }
+    };
+
+    loginUser = async (formData) => {
+        const URL = `${this.usersAPI}${this.login}`;
+        console.log(`[USER API] ${URL}`);
+        try {
+            const params = {
+                method: "POST",
+                body: formData,
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+            console.log(data);
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("role", data.role);
+            return data;
+        } catch (error) {
+            console.log("[USER API] Error logging in: ", error);
+        }
+    };
+
+    logoutUser = async (id) => {
+        try {
+            const URL = `${this.usersAPI}${this.logout}/${id}`;
+            console.log(`[USER API] ${URL}`);
+            const params = {
+                method: "POST",
+            };
+            const res = fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            return data;
+        } catch (error) {}
     };
 }

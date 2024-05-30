@@ -14,6 +14,8 @@ export const PATHS = {
         UPDATE: "/edit",
         DELETE: "/delete",
         GET_AVATAR: "/avatar",
+        LOGIN: "/login",
+        LOGOUT: "/logout",
     },
     VEHICLE_ROUTES: {
         GET: "/",

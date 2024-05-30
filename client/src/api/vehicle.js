@@ -9,6 +9,8 @@ export class Vehicle {
     delete = PATHS.VEHICLE_ROUTES.DELETE;
     getImage = PATHS.VEHICLE_ROUTES.GET_IMAGE;
 
+    token = localStorage.getItem("token");
+
     addVehicle = async (formData) => {
         const URL = `${this.vehicleAPI}${this.create}`;
         console.log(`[VEHICLE API] ${URL}`);
@@ -17,6 +19,9 @@ export class Vehicle {
             const params = {
                 method: "POST",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -34,6 +39,9 @@ export class Vehicle {
         try {
             const params = {
                 method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -51,6 +59,9 @@ export class Vehicle {
         try {
             const params = {
                 method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -68,6 +79,9 @@ export class Vehicle {
         try {
             const params = {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -87,6 +101,9 @@ export class Vehicle {
             const params = {
                 method: "PATCH",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
