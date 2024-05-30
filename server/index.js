@@ -7,6 +7,7 @@ const userRoutes = require("./routes/UserRoutes");
 const vehicleRoutes = require("./routes/VehicleRoutes");
 const taskRoutes = require("./routes/TaskRoutes");
 const RouteRoutes = require("./routes/RouteRoutes");
+const generalRoutes = require("./routes/GeneralRoutes");
 
 // Load environment variables from .env filen
 dotenv.config();
@@ -19,6 +20,9 @@ app.use(cors());
 
 // parse application/json
 app.use(bodyParser.json());
+
+//Configure General Routes
+app.use("/api/users", generalRoutes);
 
 //Configure User Routes
 app.use("/api/users", userRoutes);

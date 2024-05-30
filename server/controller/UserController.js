@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { hashSync } = require("bcrypt");
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -41,6 +44,14 @@ const createUser = async (req, res) => {
         active_user,
     } = req.body;
     const avatar = req.file ? req.file.filename : "logo-coca_cola.jpg";
+    const user = await prisma.user.findFirst({
+        where: {
+            email,
+        },
+    });
+    if (user) {
+        return res.status(400).json({ error: "User already exists" });
+    }
     try {
         const newUser = await prisma.user.create({
             data: {
@@ -50,7 +61,7 @@ const createUser = async (req, res) => {
                 first_lastname,
                 second_lastname,
                 role,
-                current_password,
+                current_password: hashSync(current_password, 10),
                 active_user,
                 avatar,
             },
@@ -123,6 +134,104 @@ const getAvatar = async (req, res) => {
     }
 };
 
+const login = async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: "Invalid request" });
+    }
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                email,
+            },
+        });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (!bcrypt.compareSync(password, user.current_password)) {
+            return res.status(401).json({ error: "Incorrect password" });
+        }
+        user.active_user = true;
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                active_user: true,
+            },
+        });
+        const { current_password, ...userWithoutPassword } = user;
+        const token = jwt.sign(
+            userWithoutPassword,
+            process.env.ACCESS_TOKEN_SECRET
+        );
+        const role = user.role;
+        res.status(201).json({ token, role });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to login" });
+    }
+};
+
+const logout = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id },
+        });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        user.active_user = false;
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                active_user: false,
+            },
+        });
+        res.status(201).json({ message: "User logged out successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to logout" });
+    }
+};
+const signUp = async (req, res) => {
+    const {
+        email,
+        first_name,
+        second_name,
+        first_lastname,
+        second_lastname,
+        role,
+        current_password,
+        active_user,
+    } = req.body;
+    const avatar = req.file ? req.file.filename : "logo-coca_cola.jpg";
+    const user = await prisma.user.findFirst({
+        where: {
+            email,
+        },
+    });
+    if (user) {
+        return res.status(400).json({ error: "User already exists" });
+    }
+    try {
+        const newUser = await prisma.user.create({
+            data: {
+                email,
+                first_name,
+                second_name,
+                first_lastname,
+                second_lastname,
+                role,
+                current_password: hashSync(current_password, 10),
+                active_user,
+                avatar,
+            },
+        });
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to create user" });
+    }
+};
+
 module.exports = {
     getUsers,
     getUserById,
@@ -130,4 +239,7 @@ module.exports = {
     updateUser,
     deleteUser,
     getAvatar,
+    login,
+    logout,
+    signUp,
 };
