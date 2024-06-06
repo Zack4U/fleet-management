@@ -9,6 +9,7 @@ const initialState = {
     role: "",
     avatar: "",
     current_password: "",
+    token: "",
     active_user: false,
     users: [],
 };
@@ -53,9 +54,14 @@ const userSlice = createSlice({
                 (user) => user.id !== action.payload
             );
         },
+        login: (state, action) => {
+            state.token = action.payload.token;
+            state.role = action.payload.role;
+            state.active_user = true;
+        },
     },
 });
 
-export const { addUser, getUsers, getUser, editUser, deleteUser } =
+export const { addUser, getUsers, getUser, editUser, deleteUser, login } =
     userSlice.actions;
 export default userSlice.reducer;
