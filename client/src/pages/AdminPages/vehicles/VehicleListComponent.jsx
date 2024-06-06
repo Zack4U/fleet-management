@@ -8,16 +8,15 @@ import {
 } from "../../../slices/vehicleSlice";
 import {
     Table,
-    Avatar,
     Space,
     Tooltip,
     Modal,
     Form,
     Input,
-    Switch,
     Upload,
     Button,
-    Select,
+    Row,
+    Col,
 } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
@@ -32,6 +31,7 @@ export const VehicleListComponent = () => {
     const vehicles = useSelector((state) => state.vehicle.vehicles);
     const vehicleAPI = new Vehicle();
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isModalVisible2, setIsModalVisible2] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const { theme } = useContext(ThemeContext);
 
@@ -49,9 +49,15 @@ export const VehicleListComponent = () => {
     }, [dispatch]);
 
     const handleViewDetails = (id) => {
-        const vehicle = vehicles.find((user) => user.id === id);
+        const vehicle = vehicles.find((vehicle) => vehicle.id === id);
         setSelectedVehicle(vehicle);
         setIsModalVisible(true);
+    };
+
+    const handleEdit = (id) => {
+        const vehicle = vehicles.find((vehicle) => vehicle.id === id);
+        setSelectedVehicle(vehicle);
+        setIsModalVisible2(true);
     };
 
     const handleDelete = (id) => {
@@ -76,30 +82,45 @@ export const VehicleListComponent = () => {
 
     const handleCancel = () => {
         setIsModalVisible(false);
+        setIsModalVisible2(false);
         setSelectedVehicle(null);
     };
 
     const handleOk = () => {
         console.log(selectedVehicle);
         const formDataToSubmit = new FormData();
+        formDataToSubmit.append("plate", selectedVehicle.plate);
+        formDataToSubmit.append("brand", selectedVehicle.brand);
+        formDataToSubmit.append("model", selectedVehicle.model);
+        formDataToSubmit.append("type", selectedVehicle.type);
+        formDataToSubmit.append("capacity", selectedVehicle.capacity);
+        formDataToSubmit.append("kilometers", selectedVehicle.kilometers);
+        formDataToSubmit.append("image", selectedVehicle.image);
         console.log(formDataToSubmit);
         vehicleAPI
-            .updateUser(selectedVehicle.id, formDataToSubmit)
+            .updateVehicle(selectedVehicle.id, formDataToSubmit)
             .then((result) => {
                 console.log(result);
                 dispatch(
                     editVehicle({
                         vehicleId: selectedVehicle.id,
-                        updatedUserData: result,
+                        updateVehicleData: result,
                     })
                 );
                 setIsModalVisible(false);
                 setSelectedVehicle(null);
-                // window.location.reload();
+                window.location.reload();
             })
             .catch((error) => {
                 console.error("Failed to edit vehicle", error);
             });
+    };
+
+    const handleImageChange = (info) => {
+        if (info.file.status !== "uploading") {
+            console.log(info.file.name);
+            setSelectedVehicle({ ...selectedVehicle, image: info.file });
+        }
     };
 
     const handleChange = (e) => {
@@ -107,24 +128,6 @@ export const VehicleListComponent = () => {
             ...selectedVehicle,
             [e.target.name]: e.target.value,
         });
-    };
-
-    const handleSwitchChange = (checked) => {
-        setSelectedVehicle({
-            ...selectedVehicle,
-            active_user: checked,
-        });
-    };
-
-    const handleAvatarChange = (info) => {
-        if (info.file.status !== "uploading") {
-            console.log(info.file.name);
-            setSelectedVehicle({ ...selectedVehicle, avatar: info.file });
-        }
-    };
-
-    const handleRoleChange = (value) => {
-        setSelectedVehicle({ ...selectedVehicle, role: value });
     };
 
     const columns = [
@@ -203,8 +206,14 @@ export const VehicleListComponent = () => {
                 <Space size="middle">
                     <Tooltip title="View Details">
                         <EyeOutlined
-                            style={{ color: "blue", cursor: "pointer" }}
+                            style={{ color: "lightblue", cursor: "pointer" }}
                             onClick={() => handleViewDetails(record.id)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Edit">
+                        <EditOutlined
+                            style={{ color: "blue", cursor: "pointer" }}
+                            onClick={() => handleEdit(record.id)}
                         />
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -236,10 +245,111 @@ export const VehicleListComponent = () => {
             </div>
             {selectedVehicle && (
                 <Modal
-                    title="Edit User"
+                    title="Details"
                     visible={isModalVisible}
                     onCancel={handleCancel}
                 ></Modal>
+            )}
+            {selectedVehicle && (
+                <Modal
+                    title="Edit Vehicle"
+                    visible={isModalVisible2}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                >
+                    <img
+                        className="w-full h-32 object-cover mb-4"
+                        src={`http://localhost:3001/api/vehicles/image/${selectedVehicle.image}`}
+                        alt="Vehicle"
+                    />
+                    <Form>
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <Form.Item label="Plate">
+                                    <Input
+                                        type="text"
+                                        name="plate"
+                                        value={selectedVehicle.plate}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item label="Brand">
+                                    <Input
+                                        type="text"
+                                        id="brand"
+                                        name="brand"
+                                        value={selectedVehicle.brand}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item label="Model">
+                                    <Input
+                                        type="text"
+                                        id="model"
+                                        name="model"
+                                        value={selectedVehicle.model}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <Form.Item label="Type">
+                                    <Input
+                                        type="text"
+                                        id="type"
+                                        name="type"
+                                        value={selectedVehicle.type}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item label="Capacity">
+                                    <Input
+                                        type="number"
+                                        id="capacity"
+                                        name="capacity"
+                                        value={selectedVehicle.capacity}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item label="Kilometers">
+                                    <Input
+                                        type="number"
+                                        id="kilometers"
+                                        name="kilometers"
+                                        value={selectedVehicle.kilometers}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Form.Item label="Image">
+                            <Upload
+                                accept="image/*"
+                                beforeUpload={(file) => {
+                                    return false;
+                                }}
+                                onChange={(info) => {
+                                    handleImageChange(info);
+                                }}
+                                fileList={[]}
+                            >
+                                <Button icon={<UploadOutlined />}>
+                                    Seleccionar archivo
+                                </Button>
+                            </Upload>
+                        </Form.Item>
+                    </Form>
+                </Modal>
             )}
         </>
     );

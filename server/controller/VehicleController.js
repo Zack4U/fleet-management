@@ -168,14 +168,33 @@ const createVehicle = async (req, res) => {
 // Update a user by ID
 const updateVehicle = async (req, res) => {
     const { id } = req.params;
-    const {} = req.body;
+    const {
+        plate,
+        brand,
+        model,
+        type,
+        capacity,
+        kilometers,
+        number_tires,
+        capacity_fuel,
+        capacity_oil,
+        capacity_cooling,
+    } = req.body;
     const image = req.file
         ? req.file.filename
         : prisma.user.findUnique({ where: { id } }).image;
     try {
         const updatedVehicle = await prisma.vehicle.update({
             where: { id },
-            data: {},
+            data: {
+                plate,
+                brand,
+                model,
+                type,
+                capacity: parseInt(capacity),
+                kilometers: parseInt(kilometers),
+                image,
+            },
         });
         res.status(201).json(updatedVehicle);
     } catch (error) {
