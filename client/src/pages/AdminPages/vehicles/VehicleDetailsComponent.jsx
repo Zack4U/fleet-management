@@ -908,11 +908,238 @@ export default function VehicleDetailsComponent(selected) {
                         <TabPane
                             tab={
                                 <span>
-                                    <RedoOutlined /> Tires
+                                    <RedoOutlined /> Pneumatics
                                 </span>
                             }
                             key="4"
-                        ></TabPane>
+                        >
+                            <Row gutter={24}>
+                                <Row className="w-full flex justify-center items-center mb-10">
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <p clas>Last Review</p>
+                                        <Input
+                                            type="date"
+                                            value={formatDate(
+                                                selectedVehicle.last_review_pneumatic
+                                            )}
+                                            disabled={!isEditing}
+                                        ></Input>
+                                    </Col>
+                                    <Col
+                                        span={2}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <ArrowRightOutlined />
+                                    </Col>
+
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <p>Next Review</p>
+                                        <Input
+                                            type="date"
+                                            value={changePeriod(
+                                                selectedVehicle.last_review_pneumatic,
+                                                selectedVehicle.pneumatic_review_period
+                                            )}
+                                            disabled={!isEditing}
+                                        ></Input>
+                                    </Col>
+                                    <Col
+                                        span={2}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <RollbackOutlined />
+                                    </Col>
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <p>Review Frequency</p>
+                                        <Select
+                                            type="text"
+                                            defaultValue={
+                                                selectedVehicle.pneumatic_review_period
+                                            }
+                                            disabled={!isEditing}
+                                            className="w-full"
+                                        >
+                                            <Option value="daily">Daily</Option>
+                                            <Option value="weekly">
+                                                Weekly
+                                            </Option>
+                                            <Option value="monthly">
+                                                Monthly
+                                            </Option>
+                                            <Option value="quarterly">
+                                                Quarterly
+                                            </Option>
+                                            <Option value="half-yearly">
+                                                Half Yearly
+                                            </Option>
+                                            <Option value="yearly">
+                                                Yearly
+                                            </Option>
+                                        </Select>
+                                    </Col>
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <Button
+                                            className="flex align-middle items-center bg-blue-500 text-white"
+                                            onClick={reviewLights}
+                                        >
+                                            <CheckOutlined />
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Row>
+                            <Row
+                                gutter={24}
+                                className="w-full flex justify-center items-center mt-7 mb-5"
+                            >
+                                <Col
+                                    span={6}
+                                    className="h-full flex flex-col justify-center items-center"
+                                >
+                                    <div
+                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                        onClick={() => handleCardClick("front")}
+                                    >
+                                        <h2 className="font-bold text-xl mb-2">
+                                            Front
+                                        </h2>
+                                        <p
+                                            className={`${
+                                                lightsInfo("front").status ===
+                                                "GOOD"
+                                                    ? "text-green-500"
+                                                    : lightsInfo("front")
+                                                          .status === "REGULAR"
+                                                    ? "text-yellow-500"
+                                                    : lightsInfo("front")
+                                                          .status === "BAD"
+                                                    ? "text-red-500"
+                                                    : "text-gray-500"
+                                            }`}
+                                        >
+                                            {lightsInfo("front").status}
+                                        </p>
+                                    </div>
+                                    <div
+                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                        onClick={() => handleCardClick("back")}
+                                    >
+                                        <h2 className="font-bold text-xl mb-2">
+                                            Back
+                                        </h2>
+                                        <p
+                                            className={`${
+                                                lightsInfo("back").status ===
+                                                "GOOD"
+                                                    ? "text-green-500"
+                                                    : lightsInfo("back")
+                                                          .status === "REGULAR"
+                                                    ? "text-yellow-500"
+                                                    : lightsInfo("back")
+                                                          .status === "BAD"
+                                                    ? "text-red-500"
+                                                    : "text-gray-500"
+                                            }`}
+                                        >
+                                            {lightsInfo("back").status}
+                                        </p>
+                                    </div>
+                                </Col>
+                                <Col
+                                    span={10}
+                                    className="h-full flex flex-col justify-center items-center"
+                                >
+                                    <div className="flex justify-center items-center transform rotate-90">
+                                        <img
+                                            className=" h-full object-cover mb-4"
+                                            src={TruckSVG}
+                                            alt="truck_plane"
+                                        />
+                                    </div>
+                                </Col>
+                                <Col
+                                    span={6}
+                                    className="h-full flex flex-col justify-center items-center"
+                                >
+                                    <div
+                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                        onClick={() => handleCardClick("side")}
+                                    >
+                                        <h2 className="font-bold text-xl mb-2">
+                                            Side
+                                        </h2>
+                                        <p
+                                            className={`${
+                                                lightsInfo("side").status ===
+                                                "GOOD"
+                                                    ? "text-green-500"
+                                                    : lightsInfo("side")
+                                                          .status === "REGULAR"
+                                                    ? "text-yellow-500"
+                                                    : lightsInfo("side")
+                                                          .status === "BAD"
+                                                    ? "text-red-500"
+                                                    : "text-gray-500"
+                                            }`}
+                                        >
+                                            {lightsInfo("side").status}
+                                        </p>
+                                    </div>
+                                    <div
+                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                        onClick={() =>
+                                            handleCardClick("inside")
+                                        }
+                                    >
+                                        <h2 className="font-bold text-xl mb-2">
+                                            Inside
+                                        </h2>
+                                        <p
+                                            className={`${
+                                                lightsInfo("inside").status ===
+                                                "GOOD"
+                                                    ? "text-green-500"
+                                                    : lightsInfo("inside")
+                                                          .status === "REGULAR"
+                                                    ? "text-yellow-500"
+                                                    : lightsInfo("inside")
+                                                          .status === "BAD"
+                                                    ? "text-red-500"
+                                                    : "text-gray-500"
+                                            }`}
+                                        >
+                                            {lightsInfo("inside").status}
+                                        </p>
+                                    </div>
+                                </Col>
+                            </Row>
+                            <Row
+                                gutter={24}
+                                className="flex justify-center align-middle items-center text-center mt-10 "
+                            >
+                                <div className="w-1/2 mt-5">
+                                    <p>Last Change</p>
+                                    <Input
+                                        type="date"
+                                        value={formatDate(
+                                            selectedVehicle.last_light_change
+                                        )}
+                                        disabled={!isEditing}
+                                    ></Input>
+                                </div>
+                            </Row>
+                        </TabPane>
                         <TabPane
                             tab={
                                 <span>
