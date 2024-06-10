@@ -2,61 +2,90 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-const createPneumatic = async (req, res) => {
+// Get all pneumatics
+const getPneumatics = async (req, res) => {
     try {
-        const data = req.body;
-        const pneumatic = await prisma.pneumatic.create({ data });
-        res.status(201).json(pneumatic);
+        const data = await prisma.pneumatic.findMany();
+        res.status(200).json(data);
     } catch (error) {
-        console.error("Error creating pneumatic:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ error: "Failed to get pneumatics" });
     }
 };
 
+// Get a single pneumatic by ID
 const getPneumaticById = async (req, res) => {
+    const { id } = req.params;
     try {
-        const id = req.params.id;
-        const pneumatic = await prisma.pneumatic.findUnique({ where: { id } });
-        if (pneumatic) {
-            res.json(pneumatic);
-        } else {
-            res.status(404).json({ error: "Pneumatic not found" });
-        }
-    } catch (error) {
-        console.error("Error retrieving pneumatic:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-};
-
-const updatePneumatic = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const data = req.body;
-        const pneumatic = await prisma.pneumatic.update({
+        const data = await prisma.pneumatic.findUnique({
             where: { id },
-            data,
         });
-        res.json(pneumatic);
+        console.log(data);
+        if (!data) {
+            return res.status(404).json({ error: "Pneumatic not found" });
+        }
+        res.status(200).json(data);
     } catch (error) {
-        console.error("Error updating pneumatic:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ error: "Failed to get pneumatic" });
     }
 };
 
-const deletePneumatic = async (req, res) => {
+// Create a new pneumatic
+const createPneumatic = async (req, res) => {
+    const { size, brand, type } = req.body;
     try {
-        const id = req.params.id;
-        const pneumatic = await prisma.pneumatic.delete({ where: { id } });
-        res.status(201).json({ message: "Pneumatic deleted" });
+        const newPneumatic = await prisma.pneumatic.create({
+            data: {
+                size: parseInt(size),
+                brand,
+                type,
+            },
+        });
+        res.status(201).json(newPneumatic);
     } catch (error) {
-        console.error("Error deleting pneumatic:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ error: "Failed to create pneumatic" });
+    }
+};
+
+// Update a pneumatic by ID
+const updatePneumatic = async (req, res) => {
+    const { id } = req.params;
+    const { size, brand, type } = req.body;
+    try {
+        const updatedPneumatic = await prisma.pneumatic.update({
+            where: { id },
+            data: {
+                size: parseInt(size),
+                brand,
+                type,
+            },
+        });
+        res.status(200).json(updatedPneumatic);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to update pneumatic" });
+    }
+};
+
+// Delete a pneumatic by ID
+const deletePneumatic = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.pneumatic.delete({
+            where: { id },
+        });
+        res.status(200).json({ message: "Pneumatic deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete pneumatic" });
     }
 };
 
 module.exports = {
-    createPneumatic,
+    getPneumatics,
     getPneumaticById,
+    createPneumatic,
     updatePneumatic,
     deletePneumatic,
 };

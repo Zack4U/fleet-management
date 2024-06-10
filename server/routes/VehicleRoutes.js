@@ -37,4 +37,28 @@ router.delete("/delete/:id", VehicleController.deleteVehicle);
 // Obtener avatar por nombre
 router.get("/image/:file_name", VehicleController.getImage);
 
+// Change oil by Vehicle ID
+router.patch("/oil/:id", VehicleController.changeOil);
+
+// Change battery by Vehicle ID
+router.patch("/battery/:id", VehicleController.changeBattery);
+
+// Change pneumatic by Vehicle ID
+router.patch("/pneumatic/:id", VehicleController.changePneumatic);
+
+// Change cooling by Vehicle ID
+router.patch("/cooling/:id", VehicleController.changeCooling);
+
+// Change light by Vehicle ID
+router.patch("/light/:id", VehicleController.changeLight);
+
+// Review battery by Vehicle ID
+router.patch("/battery/review/:id", VehicleController.reviewBattery);
+
+// Review pneumatic by Vehicle ID
+router.patch("/pneumatic/review/:id", VehicleController.reviewPneumatic);
+
+// Review light by Vehicle ID
+router.patch("/light/review/:id", VehicleController.reviewLight);
+
 module.exports = router;
