@@ -23,6 +23,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { useContext } from "react";
 import { ThemeContext } from "../../../ThemeContext";
 import "tailwindcss/tailwind.css";
+import VehicleDetailsComponent from "./VehicleDetailsComponent";
 
 const { confirm } = Modal;
 
@@ -144,6 +145,12 @@ export const VehicleListComponent = () => {
             sorter: (a, b) => a.brand.localeCompare(b.brand),
         },
         {
+            title: "Line",
+            dataIndex: "line",
+            key: "line",
+            sorter: (a, b) => a.line.localeCompare(b.line),
+        },
+        {
             title: "Model",
             dataIndex: "model",
             key: "model",
@@ -231,7 +238,7 @@ export const VehicleListComponent = () => {
         <>
             <div className="bg-red-500">
                 <h1 className="display-4 text-center text-white text-2xl font-bold p-2">
-                    Users List
+                    Vehicles List
                 </h1>
             </div>
 
@@ -243,13 +250,6 @@ export const VehicleListComponent = () => {
                     className="w-75"
                 />
             </div>
-            {selectedVehicle && (
-                <Modal
-                    title="Details"
-                    visible={isModalVisible}
-                    onCancel={handleCancel}
-                ></Modal>
-            )}
             {selectedVehicle && (
                 <Modal
                     title="Edit Vehicle"
@@ -349,6 +349,20 @@ export const VehicleListComponent = () => {
                             </Upload>
                         </Form.Item>
                     </Form>
+                </Modal>
+            )}
+            {selectedVehicle && (
+                <Modal
+                    title="Details"
+                    visible={isModalVisible}
+                    onOk={handleCancel}
+                    onCancel={handleCancel}
+                    width="50%"
+                >
+                    <VehicleDetailsComponent
+                        vehicle={selectedVehicle}
+                        className="w-full h-full"
+                    />
                 </Modal>
             )}
         </>
