@@ -11,11 +11,15 @@ export const VehicleCreateComponent = () => {
     const [formData, setFormData] = useState({
         plate: "",
         brand: "",
+        line: "",
         model: "",
         type: "",
         capacity: 0,
         kilometers: 0,
-        number_tires: 0,
+        front_right_tires: 0,
+        front_left_tires: 0,
+        back_right_tires: 0,
+        back_left_tires: 0,
         capacity_fuel: 0,
         capacity_oil: 0,
         capacity_cooling: 0,
@@ -71,7 +75,7 @@ export const VehicleCreateComponent = () => {
                 layout="vertical"
             >
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={6}>
                         <Form.Item
                             label="Plate"
                             name="plate"
@@ -91,7 +95,7 @@ export const VehicleCreateComponent = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={6}>
                         <Form.Item
                             label="Brand"
                             name="brand"
@@ -111,7 +115,27 @@ export const VehicleCreateComponent = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={6}>
+                        <Form.Item
+                            label="Line"
+                            name="line"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please input the line!",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="text"
+                                id="line"
+                                value={formData.line}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
                         <Form.Item
                             label="Model"
                             name="model"
@@ -197,8 +221,8 @@ export const VehicleCreateComponent = () => {
                 <Row gutter={16}>
                     <Col span={6}>
                         <Form.Item
-                            label="Number of Tires"
-                            name="number_tires"
+                            label="Number of Front Right Tires"
+                            name="front_right_tires"
                             rules={[
                                 {
                                     required: true,
@@ -209,14 +233,79 @@ export const VehicleCreateComponent = () => {
                         >
                             <Input
                                 type="number"
-                                id="number_tires"
-                                value={formData.number_tires}
+                                id="front_right_tires"
+                                value={formData.front_right_tires}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
+                        <Form.Item
+                            label="Number of Front Left Tires"
+                            name="front_left_tires"
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        "Please input the number of tires!",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="number"
+                                id="front_left_tires"
+                                value={formData.front_left_tires}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item
+                            label="Number of Back Right Tires"
+                            name="back_right_tires"
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        "Please input the number of tires!",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="number"
+                                id="back_right_tires"
+                                value={formData.back_right_tires}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item
+                            label="Number of Back Left Tires"
+                            name="back_left_tires"
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        "Please input the number of tires!",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="number"
+                                id="back_left_tires"
+                                value={formData.back_left_tires}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={8}>
                         <Form.Item
                             label="Fuel Capacity"
                             name="capacity_fuel"
@@ -236,7 +325,7 @@ export const VehicleCreateComponent = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={8}>
                         <Form.Item
                             label="Oil Capacity"
                             name="capacity_oil"
@@ -256,7 +345,7 @@ export const VehicleCreateComponent = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={8}>
                         <Form.Item
                             label="Cooling Capacity"
                             name="capacity_cooling"
