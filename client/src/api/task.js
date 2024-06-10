@@ -45,7 +45,7 @@ export class Task {
     };
 
     getTask = async (id) => {
-        const URL = `${this.tasksAPI}${this.getById}/${id}`;
+        const URL = `${this.tasksAPI}${this.getById}${id}`;
         console.log(`[TASK API] ${URL}`);
         try {
             const params = {

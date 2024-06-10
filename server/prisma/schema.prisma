@@ -4,7 +4,7 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-model user {
+model User {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   email            String   @unique
   first_name       String
@@ -17,150 +17,167 @@ model user {
   active_user      Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  Task             Task[]
-  Routes           route[]
+  tasks            Task[]
+  routes           Route[]
 }
 
-model vehicle {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  plate       String        @unique
-  brand       String
-  model       String
-  type        String
-  capacity    Int
-  kilometers  Int
-  legals      String        @default("Up to Date")
-  statusId    vehicleStatus @default(AVAILABLE)
-  fuelId      String        @db.ObjectId
-  fuel        fuel          @relation(fields: [fuelId], references: [id])
-  Pneumatics  pneumatic[]
-  OilId       String        @db.ObjectId
-  Oil         oil           @relation(fields: [OilId], references: [id])
-  CoolingId   String        @db.ObjectId
-  Cooling     cooling       @relation(fields: [CoolingId], references: [id])
-  Lights      lights[]
-  BatteryId   String        @db.ObjectId
-  Battery     battery       @relation(fields: [BatteryId], references: [id])
-  maintenance maintenance[]
-  image       String?       @default("camion-coca_cola.jpg")
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Routes      route[]
+model Vehicle {
+  id                      String        @id @default(auto()) @map("_id") @db.ObjectId
+  plate                   String        @unique
+  brand                   String
+  line                    String
+  model                   String
+  type                    String
+  capacity                Int
+  kilometers              Int
+  legals                  String        @default("Up to Date")
+  statusId                VehicleStatus @default(AVAILABLE)
+  fuelId                  String        @db.ObjectId
+  fuel                    Fuel          @relation(fields: [fuelId], references: [id])
+  pneumatics              Pneumatic[]
+  oil                     Oil[]
+  cooling                 Cooling[]
+  lights                  Lights[]
+  battery                 Battery[]
+  maintenance             Maintenance[]
+  image                   String?       @default("camion-coca_cola.jpg")
+  last_maintenance        DateTime      @default(now())
+  last_oil_change         DateTime      @default(now())
+  last_cooling_change     DateTime      @default(now())
+  last_battery_change     DateTime      @default(now())
+  last_pneumatic_change   DateTime      @default(now())
+  last_light_change       DateTime      @default(now())
+  last_review_battery     DateTime      @default(now())
+  last_review_pneumatic   DateTime      @default(now())
+  last_review_light       DateTime      @default(now())
+  oil_change_period       Period        @default(MONTHLY)
+  cooling_change_period   Period        @default(QUARTERLY)
+  battery_review_period   Period        @default(HALF_YEARLY)
+  pneumatic_review_period Period        @default(HALF_YEARLY)
+  light_review_period     Period        @default(YEARLY)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  routes                  Route[]
 }
 
-model fuel {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  liters    Float
-  available Float
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  refueling refueling[]
-  vehicle   vehicle[]
+model Fuel {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  liters      Float
+  available   Float
+  last_refuel DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  refueling   Refueling[]
+  vehicle     Vehicle[]
 }
 
-model refueling {
+model Refueling {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   liters    Float
   cost      Float
   type      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  fuel      fuel?    @relation(fields: [fuelId], references: [id])
+  fuel      Fuel?    @relation(fields: [fuelId], references: [id])
   fuelId    String?  @db.ObjectId
 }
 
-model pneumatic {
+model Pneumatic {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  brand     String
-  model     String
-  size      String
-  type      String
+  brand     String   @default("default")
+  model     String   @default("default")
+  size      String   @default("default")
+  type      String   @default("default")
   wear      Int      @default(0)
-  pressure  Int
-  diameter  Int
-  width     Int
-  height    Int
+  pressure  Int      @default(115)
+  diameter  Int      @default(22)
+  width     Int      @default(385)
+  height    Int      @default(65)
   position  String
   in_use    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  vehicle   vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
   vehicleId String?  @db.ObjectId
 }
 
-model oil {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  brand     String
-  type      String
-  liters    Float
-  in_use    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  vehicle   vehicle[]
-}
-
-model cooling {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  brand     String
-  liters    Float
-  in_use    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  vehicle   vehicle[]
-}
-
-model lights {
+model Oil {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  brand     String
-  type      String
-  position  String
+  brand     String   @default("default")
+  type      String   @default("default")
+  liters    Float
   in_use    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  vehicle   vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
   vehicleId String?  @db.ObjectId
 }
 
-model battery {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  brand     String
-  type      String
-  voltage   Float
-  amperage  Float
-  in_use    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  vehicle   vehicle[]
+model Cooling {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String   @default("default")
+  liters    Float
+  in_use    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId String?  @db.ObjectId
 }
 
-model maintenance {
+model Lights {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String      @default("default")
+  type      String      @default("default")
+  position  String
+  status    LightStatus @default(GOOD)
+  in_use    Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  vehicle   Vehicle?    @relation(fields: [vehicleId], references: [id])
+  vehicleId String?     @db.ObjectId
+}
+
+model Battery {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String   @default("default")
+  type      String   @default("default")
+  voltage   Float    @default(12)
+  amperage  Float    @default(100)
+  in_use    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId String?  @db.ObjectId
+}
+
+model Maintenance {
   id        String            @id @default(auto()) @map("_id") @db.ObjectId
-  type      maintenanceType
+  type      MaintenanceType
   cost      Float
   notes     String?
-  status    maintenanceStatus @default(PENDING)
+  status    MaintenanceStatus @default(PENDING)
   vehicleId String            @db.ObjectId
-  vehicle   vehicle           @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle           @relation(fields: [vehicleId], references: [id])
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }
 
-model route {
+model Route {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   vehicleId     String      @db.ObjectId
-  vehicle       vehicle     @relation(fields: [vehicleId], references: [id])
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
   driverId      String      @db.ObjectId
-  driver        user        @relation(fields: [driverId], references: [id])
+  driver        User        @relation(fields: [driverId], references: [id])
   startLocation String
   endLocation   String
   startDateTime DateTime
   endDateTime   DateTime?
-  status        routeStatus @default(PENDING)
+  status        RouteStatus @default(PENDING)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
 
-enum maintenanceType {
+enum MaintenanceType {
   PREVENTIVE
   CORRECTIVE
   REGURAL
@@ -168,34 +185,50 @@ enum maintenanceType {
   PNEUMATICS_CHANGE
 }
 
-enum maintenanceStatus {
+enum MaintenanceStatus {
   PENDING
   IN_PROCESS
   FINISHED
   CANCELED
 }
 
-enum vehicleStatus {
+enum VehicleStatus {
   AVAILABLE
   UNAVAILABLE
   IN_MAINTENANCE
   IN_ROUTE
 }
 
-enum routeStatus {
+enum RouteStatus {
   PENDING
   IN_ROUTE
   FINISHED
   CANCELED
 }
 
-model task {
+enum LightStatus {
+  GOOD
+  REGULAR
+  BAD
+  BROKEN
+}
+
+enum Period {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  YEARLY
+}
+
+model Task {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   body      String
   list      Int
   userId    String   @db.ObjectId
-  user      user     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

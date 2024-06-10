@@ -56,7 +56,7 @@ export class User {
     };
 
     getUser = async (id) => {
-        const URL = `${this.usersAPI}${this.getById}/${id}`;
+        const URL = `${this.usersAPI}${this.getById}${id}`;
         console.log(`[USER API] ${URL}`);
         try {
             const params = {

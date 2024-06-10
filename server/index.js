@@ -7,6 +7,13 @@ const userRoutes = require("./routes/UserRoutes");
 const vehicleRoutes = require("./routes/VehicleRoutes");
 const taskRoutes = require("./routes/TaskRoutes");
 const RouteRoutes = require("./routes/RouteRoutes");
+const BatteryRoutes = require("./routes/BatteryRoutes");
+const OilRoutes = require("./routes/OilRoutes");
+const PneumaticRoutes = require("./routes/PneumaticRoutes");
+const CoolingRoutes = require("./routes/CoolingRoutes");
+const fuelRoutes = require("./routes/FuelRoutes");
+const LightRoutes = require("./routes/LightRoutes");
+
 const generalRoutes = require("./routes/GeneralRoutes");
 
 // Load environment variables from .env filen
@@ -24,17 +31,17 @@ app.use(bodyParser.json());
 //Configure General Routes
 app.use("/api/users", generalRoutes);
 
-//Configure User Routes
+// Configure routes
 app.use("/api/users", userRoutes);
-
-//Configure Vehicle Routes
 app.use("/api/vehicles", vehicleRoutes);
-
-//Configure Task Routes
 app.use("/api/tasks", taskRoutes);
-
-//Configure Route Routes
 app.use("/api/routes", RouteRoutes);
+app.use("/api/batteries", BatteryRoutes);
+app.use("/api/oils", OilRoutes);
+app.use("/api/pneumatics", PneumaticRoutes);
+app.use("/api/coolings", CoolingRoutes);
+app.use("/api/fuels", fuelRoutes);
+app.use("/api/lights", LightRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
