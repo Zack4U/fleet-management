@@ -140,6 +140,7 @@ const login = async (req, res) => {
         return res.status(400).json({ error: "Invalid request" });
     }
     try {
+        console.log(email, password);
         const user = await prisma.user.findFirst({
             where: {
                 email,
