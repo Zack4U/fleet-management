@@ -5,9 +5,10 @@ const prisma = new PrismaClient();
 // Get all users
 const getVehicles = async (req, res) => {
     try {
-        const data = await prisma.vehicle.findMany({});
+        const data = await prisma.vehicle.findMany();
         res.status(201).json(data);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Failed to get vehicles" });
     }
 };
@@ -19,19 +20,31 @@ const getVehicleById = async (req, res) => {
         const data = await prisma.vehicle.findUnique({
             where: { id },
             include: {
-                Fuel: true,
-                Oil: true,
-                Cooling: true,
-                Battery: true,
-                Lights: true,
-                Pneumatics: true,
+                fuel: true,
+                oil: {
+                    where: { in_use: true },
+                },
+                cooling: {
+                    where: { in_use: true },
+                },
+                battery: {
+                    where: { in_use: true },
+                },
+                lights: {
+                    where: { in_use: true },
+                },
+                pneumatics: {
+                    where: { in_use: true },
+                },
             },
         });
+        console.log(data);
         if (!data) {
             return res.status(404).json({ error: "Vehicle not found" });
         }
-        res.status(201).json(user);
+        res.status(201).json(data);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Failed to get Vehicle" });
     }
 };
@@ -41,11 +54,15 @@ const createVehicle = async (req, res) => {
     const {
         plate,
         brand,
+        line,
         model,
         type,
         capacity,
         kilometers,
-        number_tires,
+        front_right_tires,
+        front_left_tires,
+        back_right_tires,
+        back_left_tires,
         capacity_fuel,
         capacity_oil,
         capacity_cooling,
@@ -53,6 +70,19 @@ const createVehicle = async (req, res) => {
     const image = req.file ? req.file.filename : "camion-coca_cola.jpg";
 
     try {
+        if (
+            isNaN(Number(front_right_tires)) ||
+            Number(front_right_tires) <= 0 ||
+            isNaN(Number(front_left_tires)) ||
+            Number(front_left_tires) <= 0 ||
+            isNaN(Number(back_right_tires)) ||
+            Number(back_right_tires) <= 0 ||
+            isNaN(Number(back_left_tires)) ||
+            Number(back_left_tires) <= 0
+        ) {
+            throw new Error("number_tires must be a number greater than 0");
+        }
+
         // Crear instancias de fuel, oil, cooling, battery
         const fuel = await prisma.fuel.create({
             data: {
@@ -63,76 +93,50 @@ const createVehicle = async (req, res) => {
         const oil = await prisma.oil.create({
             data: {
                 liters: parseInt(capacity_oil),
-                brand: "default",
-                type: "default",
             },
         });
         const cooling = await prisma.cooling.create({
             data: {
                 liters: parseInt(capacity_cooling),
-                brand: "default",
             },
         });
-        const battery = await prisma.battery.create({
-            data: {
-                voltage: 12,
-                amperage: 100,
-                brand: "default",
-                type: "default",
-            },
-        });
+        const battery = await prisma.battery.create({ data: {} });
 
-        // Crear instancias de luces
-        const lights = await Promise.all([
-            prisma.lights.create({
-                data: {
-                    brand: "default",
-                    type: "default",
-                    position: "delanteras",
-                },
-            }),
-            prisma.lights.create({
-                data: {
-                    brand: "default",
-                    type: "default",
-                    position: "traseras",
-                },
-            }),
-            prisma.lights.create({
-                data: {
-                    brand: "default",
-                    type: "default",
-                    position: "laterales",
-                },
-            }),
-            prisma.lights.create({
-                data: {
-                    brand: "default",
-                    type: "default",
-                    position: "internas",
-                },
-            }),
-        ]);
+        // Define the light positions
+        const lightPositions = ["front", "back", "side", "inside"];
 
-        // Crear instancias de neumáticos
+        // Create the lights for each position
+        const lights = await Promise.all(
+            lightPositions.map((position) =>
+                prisma.lights.create({
+                    data: {
+                        position: position,
+                    },
+                })
+            )
+        );
+
+        // Define the number of tires for each position
+        const tireCounts = {
+            "Front Right": Number(front_right_tires),
+            "Front Left": Number(front_left_tires),
+            "Back Right": Number(back_right_tires),
+            "Back Left": Number(back_left_tires),
+        };
+
+        // Create the tires for each position
         const pneumatics = await Promise.all(
-            Array(number_tires)
-                .fill()
-                .map(() =>
-                    prisma.pneumatic.create({
-                        data: {
-                            brand: "default",
-                            model: "default",
-                            size: "default",
-                            type: "default",
-                            pressure: 0,
-                            diameter: 0,
-                            width: 0,
-                            height: 0,
-                            position: "default",
-                        },
-                    })
-                )
+            Object.entries(tireCounts).flatMap(([position, count]) =>
+                Array(count)
+                    .fill()
+                    .map(() =>
+                        prisma.pneumatic.create({
+                            data: {
+                                position: position,
+                            },
+                        })
+                    )
+            )
         );
 
         // Crear el vehículo
@@ -140,16 +144,17 @@ const createVehicle = async (req, res) => {
             data: {
                 plate,
                 brand,
+                line,
                 model,
                 type,
                 capacity: parseInt(capacity),
                 kilometers: parseInt(kilometers),
                 fuelId: fuel.id,
-                OilId: oil.id,
-                CoolingId: cooling.id,
-                BatteryId: battery.id,
-                Lights: { connect: lights.map((light) => ({ id: light.id })) },
-                Pneumatics: {
+                oil: { connect: { id: oil.id } },
+                cooling: { connect: { id: cooling.id } },
+                battery: { connect: { id: battery.id } },
+                lights: { connect: lights.map((light) => ({ id: light.id })) },
+                pneumatics: {
                     connect: pneumatics.map((pneumatic) => ({
                         id: pneumatic.id,
                     })),
@@ -171,14 +176,30 @@ const updateVehicle = async (req, res) => {
     const {
         plate,
         brand,
+        line,
         model,
         type,
         capacity,
         kilometers,
-        number_tires,
-        capacity_fuel,
-        capacity_oil,
-        capacity_cooling,
+        legals,
+        statusId,
+        fuelId,
+        pneumatics,
+        oil,
+        cooling,
+        lights,
+        battery,
+        maintenance,
+        last_maintenance,
+        last_oil_change,
+        last_cooling_change,
+        last_battery_change,
+        last_pneumatic_change,
+        last_light_change,
+        oil_change_period,
+        cooling_change_period,
+        battery_review_period,
+        pneumatic_review_period,
     } = req.body;
     const image = req.file
         ? req.file.filename
@@ -189,11 +210,31 @@ const updateVehicle = async (req, res) => {
             data: {
                 plate,
                 brand,
+                line,
                 model,
                 type,
-                capacity: parseInt(capacity),
-                kilometers: parseInt(kilometers),
+                capacity: capacity ? parseInt(capacity) : undefined,
+                kilometers: kilometers ? parseInt(kilometers) : undefined,
+                legals,
+                statusId,
+                fuelId,
+                pneumatics,
+                oil,
+                cooling,
+                lights,
+                battery,
+                maintenance,
                 image,
+                last_maintenance,
+                last_oil_change,
+                last_cooling_change,
+                last_battery_change,
+                last_pneumatic_change,
+                last_light_change,
+                oil_change_period,
+                cooling_change_period,
+                battery_review_period,
+                pneumatic_review_period,
             },
         });
         res.status(201).json(updatedVehicle);
@@ -207,11 +248,32 @@ const updateVehicle = async (req, res) => {
 const deleteVehicle = async (req, res) => {
     const { id } = req.params;
     try {
-        await prisma.vehicle.delete({
+        const vehicle = await prisma.vehicle.findUnique({
             where: { id },
+            include: {
+                fuel: true,
+            },
         });
+
+        await prisma.fuel.delete({ where: { id: vehicle.fuel.id } });
+        await prisma.refueling.deleteMany({
+            where: { fuelId: vehicle.fuel.id },
+        });
+        await prisma.oil.deleteMany({ where: { vehicleId: vehicle.id } });
+        await prisma.cooling.deleteMany({ where: { vehicleId: vehicle.id } });
+        await prisma.battery.deleteMany({ where: { vehicleId: vehicle.id } });
+        await prisma.lights.deleteMany({
+            where: { vehicleId: id },
+        });
+        await prisma.pneumatic.deleteMany({
+            where: { vehicleId: id },
+        });
+
+        await prisma.vehicle.delete({ where: { id } });
+
         res.status(201).json({ message: "Vehicle deleted successfully" });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Failed to delete Vehicle" });
     }
 };
@@ -221,7 +283,184 @@ const getImage = async (req, res) => {
         const { file_name } = req.params;
         res.sendFile(file_name, { root: "uploads/vehicles" });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Failed to get vehicle image" });
+    }
+};
+
+const changeOil = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_oil_change: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to change oil" });
+    }
+};
+
+const changeCooling = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_cooling_change: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to change cooling" });
+    }
+};
+
+const changeBattery = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_battery_change: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to change battery" });
+    }
+};
+
+const changePneumatic = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_pneumatic_change: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to change pneumatic" });
+    }
+};
+
+const changeLight = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_light_change: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to change light" });
+    }
+};
+
+const reviewBattery = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_battery_review: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to review battery" });
+    }
+};
+
+const reviewPneumatic = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_pneumatic_review: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to review pneumatic" });
+    }
+};
+
+const reviewLight = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id },
+        });
+
+        const updatedVehicle = await prisma.vehicle.update({
+            where: { id },
+            data: {
+                last_review_light: new Date(),
+            },
+        });
+
+        res.status(201).json(updatedVehicle);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to review light" });
     }
 };
 
@@ -232,4 +471,12 @@ module.exports = {
     updateVehicle,
     deleteVehicle,
     getImage,
+    changeOil,
+    changeCooling,
+    changeBattery,
+    changePneumatic,
+    changeLight,
+    reviewBattery,
+    reviewPneumatic,
+    reviewLight,
 };
