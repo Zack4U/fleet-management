@@ -8,6 +8,8 @@ export class Fuel {
     update = PATHS.FUEL_ROUTES.UPDATE;
     delete = PATHS.FUEL_ROUTES.DELETE;
     getRefuelsURL = PATHS.FUEL_ROUTES.GET_REFUELS;
+    refuelURL = PATHS.FUEL_ROUTES.REFUEL;
+    spend = PATHS.FUEL_ROUTES.SPEND;
 
     token = localStorage.getItem("token");
 
@@ -133,6 +135,48 @@ export class Fuel {
             return data;
         } catch (error) {
             console.log("[FUEL API] Error getting refuels: ", error);
+        }
+    };
+
+    refuel = async (id, formData) => {
+        const URL = `${this.fuelAPI}${this.refuelURL}/${id}`;
+        console.log(`[FUEL API] ${URL}`);
+        try {
+            const params = {
+                method: "POST",
+                body: formData,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[FUEL API] Error refueling: ", error);
+        }
+    };
+
+    spendFuel = async (id, formData) => {
+        const URL = `${this.fuelAPI}${this.spend}/${id}`;
+        console.log(`[FUEL API] ${URL}`);
+        try {
+            const params = {
+                method: "POST",
+                body: formData,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[FUEL API] Error spending fuel: ", error);
         }
     };
 }

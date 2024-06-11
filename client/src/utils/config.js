@@ -67,6 +67,8 @@ export const PATHS = {
         UPDATE: "/edit",
         DELETE: "/delete",
         GET_REFUELS: "/refuels",
+        REFUEL: "/refuels",
+        SPEND: "/spend",
     },
     LIGHT_ROUTES: {
         GET: "/",
