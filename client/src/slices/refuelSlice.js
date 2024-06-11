@@ -44,7 +44,7 @@ const refuelSlice = createSlice({
     },
 });
 
-export const { addReuel, getRefuels, getRefuel, updateRefuel, deleteRefuel } =
+export const { addRefuel, getRefuels, getRefuel, updateRefuel, deleteRefuel } =
     refuelSlice.actions;
 
 export default refuelSlice.reducer;
