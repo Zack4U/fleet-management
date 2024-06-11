@@ -24,7 +24,8 @@ import { Pneumatic } from "../../../api/pneumatic";
 import { Battery } from "../../../api/battery";
 import { getVehicle, editVehicle } from "../../../slices/vehicleSlice";
 import { addOil, updateOil } from "../../../slices/oilSlice";
-import { getRefuels } from "../../../slices/refuelSlice";
+import { addRefuel, getRefuels } from "../../../slices/refuelSlice";
+import { updateFuel } from "../../../slices/fuelSlice";
 import {
     BgColorsOutlined,
     SendOutlined,
@@ -63,7 +64,14 @@ export default function VehicleDetailsComponent(selected) {
         useState(false);
     const [isFuelHistoryVisible, setIsFuelHistoryVisible] = useState(false);
     const [isLightsModalVisible, setIsLightsModalVisible] = useState(false);
+    const [isPneumaticChangeModalVisible, setIsPneumaticChangeModalVisible] =
+        useState(false);
+    const [isRefuelModalVisible, setIsRefuelModalVisible] = useState(false);
+    const [isSpendModalVisible, setIsSpendModalVisible] = useState(false);
     const [selectedLight, setSelectedLight] = useState({});
+    const [selectedPneumatic, setSelectedPneumatic] = useState({});
+    const [selectedBattery, setSelectedBattery] = useState({});
+    const [refuel, setRefuel] = useState({});
 
     useEffect(() => {
         const fetchVehicle = async () => {
@@ -77,6 +85,11 @@ export default function VehicleDetailsComponent(selected) {
                 console.error("Error fetching vehicle details: ", error);
             }
         };
+
+        fetchVehicle();
+    }, [selectedVehicle.id]);
+
+    useEffect(() => {
         const fetchRefuels = async () => {
             try {
                 const res = await fuelApi.getRefuels(selectedVehicle.fuelId);
@@ -92,8 +105,7 @@ export default function VehicleDetailsComponent(selected) {
         };
 
         fetchRefuels();
-        fetchVehicle();
-    }, [selectedVehicle.id]);
+    }, [isRefuelModalVisible]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -122,6 +134,13 @@ export default function VehicleDetailsComponent(selected) {
         });
     };
 
+    const handleRefuelChange = (e) => {
+        setRefuel({
+            ...refuel,
+            [e.target.name]: e.target.value,
+        });
+    };
+
     const handleCoolingChange = (e) => {
         setSelectedVehicle({
             ...selectedVehicle,
@@ -137,6 +156,13 @@ export default function VehicleDetailsComponent(selected) {
     const handleLightChange = (e) => {
         setSelectedLight({
             ...selectedLight,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handlePneumaticChange = (e) => {
+        setSelectedPneumatic({
+            ...selectedPneumatic,
             [e.target.name]: e.target.value,
         });
     };
@@ -210,9 +236,66 @@ export default function VehicleDetailsComponent(selected) {
         return lightInfo;
     };
 
+    const pneumaticsGroup = (position) => {
+        const pneumaticGroup = selectedVehicle.pneumatics.filter(
+            (pneumatic) => pneumatic.position === position
+        );
+        return pneumaticGroup;
+    };
+
     const handleCardClick = (position) => {
         setSelectedLight(lightsInfo(position));
         setIsLightsModalVisible(true);
+    };
+
+    const handlePneumaticClick = (pneumatic_id) => {
+        setSelectedPneumatic(
+            selectedVehicle.pneumatics.find(
+                (pneumatic) => pneumatic.id === pneumatic_id
+            )
+        );
+        setIsPneumaticChangeModalVisible(true);
+    };
+
+    const addRefuel = async () => {
+        try {
+            const formData = new FormData();
+            const id = selectedVehicle.fuel.id;
+            const cost = refuel.liters * refuel.cost;
+            formData.append("liters", refuel.liters);
+            formData.append("cost", cost);
+            formData.append("type", refuel.type);
+
+            const res = await fuelApi.refuel(id, formData);
+            dispatch(updateFuel(res));
+            setSelectedVehicle({
+                ...selectedVehicle,
+                fuel: res,
+            });
+
+            setIsRefuelModalVisible(false);
+        } catch (error) {
+            console.error("Error refueling: ", error);
+        }
+    };
+
+    const spendFuel = async () => {
+        try {
+            const formData = new FormData();
+            const id = selectedVehicle.fuel.id;
+            formData.append("liters", refuel.liters);
+
+            const res = await fuelApi.spendFuel(id, formData);
+            dispatch(updateFuel(res));
+            setSelectedVehicle({
+                ...selectedVehicle,
+                fuel: res,
+            });
+
+            setIsSpendModalVisible(false);
+        } catch (error) {
+            console.error("Error spending fuel: ", error);
+        }
     };
 
     const okOilChange = async () => {
@@ -298,6 +381,40 @@ export default function VehicleDetailsComponent(selected) {
         }
     };
 
+    const okPneumaticChange = async () => {
+        try {
+            console.log("Pneumatic change details: ", selectedLight);
+            const formDataToSubmit = new FormData();
+            formDataToSubmit.append("vehicleId", selectedVehicle.id);
+            formDataToSubmit.append("pneumaticId", selectedPneumatic.id);
+            formDataToSubmit.append("brand", selectedPneumatic.brand);
+            formDataToSubmit.append("model", selectedPneumatic.model);
+            formDataToSubmit.append("size", selectedPneumatic.size);
+            formDataToSubmit.append("type", selectedPneumatic.type);
+            formDataToSubmit.append("pressure", selectedPneumatic.pressure);
+            formDataToSubmit.append("diameter", selectedPneumatic.diameter);
+            formDataToSubmit.append("width", selectedPneumatic.width);
+            formDataToSubmit.append("height", selectedPneumatic.height);
+            formDataToSubmit.append("position", selectedPneumatic.position);
+
+            const pneumatic = await pneumaticApi.addPneumatic(formDataToSubmit);
+
+            await vehicleApi.changePneumatic(selectedVehicle.id).then((res) => {
+                console.log(res);
+                dispatch(
+                    editVehicle({
+                        vehicleId: selectedVehicle.id,
+                        updateVehicleData: res,
+                    })
+                );
+            });
+
+            setIsPneumaticChangeModalVisible(false);
+        } catch (error) {
+            console.error("Error changing pneumatic: ", error);
+        }
+    };
+
     const reviewLights = async () => {
         try {
             const formData = new FormData();
@@ -312,6 +429,23 @@ export default function VehicleDetailsComponent(selected) {
             );
         } catch (error) {
             console.error("Error reviewing lights: ", error);
+        }
+    };
+
+    const reviewPneumatics = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("vehicleId", selectedVehicle.id);
+
+            const res = await vehicleApi.reviewPneumatic(selectedVehicle.id);
+            dispatch(
+                editVehicle({
+                    vehicleId: selectedVehicle.id,
+                    updateVehicleData: res,
+                })
+            );
+        } catch (error) {
+            console.error("Error reviewing pneumatics: ", error);
         }
     };
 
@@ -607,6 +741,31 @@ export default function VehicleDetailsComponent(selected) {
                             key="2"
                         >
                             <div>
+                                <Row
+                                    gutter={24}
+                                    className="mb-5 flex items-center justify-center"
+                                >
+                                    <Col span={12}>
+                                        <Button
+                                            className="flex bg-blue-500 text-white text-xl p-3 align-middle justify-center items-center w-full"
+                                            onClick={() =>
+                                                setIsRefuelModalVisible(true)
+                                            }
+                                        >
+                                            Refuel
+                                        </Button>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Button
+                                            className="flex bg-red-500 text-white text-xl p-3 align-middle justify-center items-center w-full"
+                                            onClick={() =>
+                                                setIsSpendModalVisible(true)
+                                            }
+                                        >
+                                            Spend
+                                        </Button>
+                                    </Col>
+                                </Row>
                                 <Row gutter={24} className="mb-5">
                                     <Col span={6}>
                                         <p className="font-bold">Capacity</p>
@@ -992,7 +1151,7 @@ export default function VehicleDetailsComponent(selected) {
                                     >
                                         <Button
                                             className="flex align-middle items-center bg-blue-500 text-white"
-                                            onClick={reviewLights}
+                                            onClick={reviewPneumatics}
                                         >
                                             <CheckOutlined />
                                         </Button>
@@ -1007,54 +1166,102 @@ export default function VehicleDetailsComponent(selected) {
                                     span={6}
                                     className="h-full flex flex-col justify-center items-center"
                                 >
-                                    <div
-                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
-                                        onClick={() => handleCardClick("front")}
-                                    >
-                                        <h2 className="font-bold text-xl mb-2">
-                                            Front
-                                        </h2>
-                                        <p
-                                            className={`${
-                                                lightsInfo("front").status ===
-                                                "GOOD"
-                                                    ? "text-green-500"
-                                                    : lightsInfo("front")
-                                                          .status === "REGULAR"
-                                                    ? "text-yellow-500"
-                                                    : lightsInfo("front")
-                                                          .status === "BAD"
-                                                    ? "text-red-500"
-                                                    : "text-gray-500"
-                                            }`}
-                                        >
-                                            {lightsInfo("front").status}
-                                        </p>
-                                    </div>
-                                    <div
-                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
-                                        onClick={() => handleCardClick("back")}
-                                    >
-                                        <h2 className="font-bold text-xl mb-2">
-                                            Back
-                                        </h2>
-                                        <p
-                                            className={`${
-                                                lightsInfo("back").status ===
-                                                "GOOD"
-                                                    ? "text-green-500"
-                                                    : lightsInfo("back")
-                                                          .status === "REGULAR"
-                                                    ? "text-yellow-500"
-                                                    : lightsInfo("back")
-                                                          .status === "BAD"
-                                                    ? "text-red-500"
-                                                    : "text-gray-500"
-                                            }`}
-                                        >
-                                            {lightsInfo("back").status}
-                                        </p>
-                                    </div>
+                                    <Row justify="center">
+                                        {pneumaticsGroup("Front Left").map(
+                                            (pneumatic, index) => (
+                                                <Col
+                                                    span={
+                                                        24 /
+                                                        pneumaticsGroup(
+                                                            "Front Left"
+                                                        ).length
+                                                    }
+                                                    key={index}
+                                                >
+                                                    <div
+                                                        className="border p-4 rounded-md m-1 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                                        onClick={() =>
+                                                            handlePneumaticClick(
+                                                                pneumatic.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <h2 className="font-bold text-xl mb-2">
+                                                            Front Left
+                                                        </h2>
+                                                        <p
+                                                            className={`${
+                                                                pneumatic.wear <
+                                                                25
+                                                                    ? "text-green-500"
+                                                                    : pneumatic.wear >
+                                                                          25 &&
+                                                                      pneumatic.wear <=
+                                                                          50
+                                                                    ? "text-yellow-500"
+                                                                    : pneumatic.wear >
+                                                                          50 &&
+                                                                      pneumatic.wear <=
+                                                                          75
+                                                                    ? "text-red-500"
+                                                                    : "text-gray-500"
+                                                            }`}
+                                                        >
+                                                            {pneumatic.wear}%
+                                                        </p>
+                                                    </div>
+                                                </Col>
+                                            )
+                                        )}
+                                    </Row>
+                                    <Row justify="center">
+                                        {pneumaticsGroup("Back Left").map(
+                                            (pneumatic, index) => (
+                                                <Col
+                                                    span={
+                                                        24 /
+                                                        pneumaticsGroup(
+                                                            "Back Left"
+                                                        ).length
+                                                    }
+                                                    key={index}
+                                                >
+                                                    <div
+                                                        className="border p-4 rounded-md m-1 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                                        onClick={() =>
+                                                            handlePneumaticClick(
+                                                                pneumatic.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <h2 className="font-bold text-xl mb-2">
+                                                            Back Left
+                                                        </h2>
+                                                        <p
+                                                            className={`${
+                                                                pneumatic.wear <
+                                                                25
+                                                                    ? "text-green-500"
+                                                                    : pneumatic.wear >
+                                                                          25 &&
+                                                                      pneumatic.wear <=
+                                                                          50
+                                                                    ? "text-yellow-500"
+                                                                    : pneumatic.wear >
+                                                                          50 &&
+                                                                      pneumatic.wear <=
+                                                                          75
+                                                                    ? "text-red-500"
+                                                                    : "text-gray-500"
+                                                            }`}
+                                                        >
+                                                            {pneumatic.wear}%
+                                                        </p>
+                                                    </div>
+                                                </Col>
+                                            )
+                                        )}
+                                    </Row>
                                 </Col>
                                 <Col
                                     span={10}
@@ -1072,56 +1279,102 @@ export default function VehicleDetailsComponent(selected) {
                                     span={6}
                                     className="h-full flex flex-col justify-center items-center"
                                 >
-                                    <div
-                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
-                                        onClick={() => handleCardClick("side")}
-                                    >
-                                        <h2 className="font-bold text-xl mb-2">
-                                            Side
-                                        </h2>
-                                        <p
-                                            className={`${
-                                                lightsInfo("side").status ===
-                                                "GOOD"
-                                                    ? "text-green-500"
-                                                    : lightsInfo("side")
-                                                          .status === "REGULAR"
-                                                    ? "text-yellow-500"
-                                                    : lightsInfo("side")
-                                                          .status === "BAD"
-                                                    ? "text-red-500"
-                                                    : "text-gray-500"
-                                            }`}
-                                        >
-                                            {lightsInfo("side").status}
-                                        </p>
-                                    </div>
-                                    <div
-                                        className="border p-4 rounded-md mt-5 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
-                                        onClick={() =>
-                                            handleCardClick("inside")
-                                        }
-                                    >
-                                        <h2 className="font-bold text-xl mb-2">
-                                            Inside
-                                        </h2>
-                                        <p
-                                            className={`${
-                                                lightsInfo("inside").status ===
-                                                "GOOD"
-                                                    ? "text-green-500"
-                                                    : lightsInfo("inside")
-                                                          .status === "REGULAR"
-                                                    ? "text-yellow-500"
-                                                    : lightsInfo("inside")
-                                                          .status === "BAD"
-                                                    ? "text-red-500"
-                                                    : "text-gray-500"
-                                            }`}
-                                        >
-                                            {lightsInfo("inside").status}
-                                        </p>
-                                    </div>
+                                    <Row justify="center">
+                                        {pneumaticsGroup("Front Right").map(
+                                            (pneumatic, index) => (
+                                                <Col
+                                                    span={
+                                                        24 /
+                                                        pneumaticsGroup(
+                                                            "Front Right"
+                                                        ).length
+                                                    }
+                                                    key={index}
+                                                >
+                                                    <div
+                                                        className="border p-4 rounded-md m-1 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                                        onClick={() =>
+                                                            handlePneumaticClick(
+                                                                pneumatic.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <h2 className="font-bold text-xl mb-2">
+                                                            Front Right
+                                                        </h2>
+                                                        <p
+                                                            className={`${
+                                                                pneumatic.wear <
+                                                                25
+                                                                    ? "text-green-500"
+                                                                    : pneumatic.wear >
+                                                                          25 &&
+                                                                      pneumatic.wear <=
+                                                                          50
+                                                                    ? "text-yellow-500"
+                                                                    : pneumatic.wear >
+                                                                          50 &&
+                                                                      pneumatic.wear <=
+                                                                          75
+                                                                    ? "text-red-500"
+                                                                    : "text-gray-500"
+                                                            }`}
+                                                        >
+                                                            {pneumatic.wear}%
+                                                        </p>
+                                                    </div>
+                                                </Col>
+                                            )
+                                        )}
+                                    </Row>
+                                    <Row justify="center">
+                                        {pneumaticsGroup("Back Right").map(
+                                            (pneumatic, index) => (
+                                                <Col
+                                                    span={
+                                                        24 /
+                                                        pneumaticsGroup(
+                                                            "Back Right"
+                                                        ).length
+                                                    }
+                                                    key={index}
+                                                >
+                                                    <div
+                                                        className="border p-4 rounded-md m-1 hover:border-blue-500 transition-colors duration-200 shadow-md cursor-pointer"
+                                                        onClick={() =>
+                                                            handlePneumaticClick(
+                                                                pneumatic.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <h2 className="font-bold text-xl mb-2">
+                                                            Back Right
+                                                        </h2>
+                                                        <p
+                                                            className={`${
+                                                                pneumatic.wear <
+                                                                25
+                                                                    ? "text-green-500"
+                                                                    : pneumatic.wear >
+                                                                          25 &&
+                                                                      pneumatic.wear <=
+                                                                          50
+                                                                    ? "text-yellow-500"
+                                                                    : pneumatic.wear >
+                                                                          50 &&
+                                                                      pneumatic.wear <=
+                                                                          75
+                                                                    ? "text-red-500"
+                                                                    : "text-gray-500"
+                                                            }`}
+                                                        >
+                                                            {pneumatic.wear}%
+                                                        </p>
+                                                    </div>
+                                                </Col>
+                                            )
+                                        )}
+                                    </Row>
                                 </Col>
                             </Row>
                             <Row
@@ -1198,6 +1451,60 @@ export default function VehicleDetailsComponent(selected) {
                                     name="liters"
                                     value={selectedVehicle.oil[0].liters}
                                     onChange={handleOilChange}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                    <Modal
+                        title="Refuel tank"
+                        visible={isRefuelModalVisible}
+                        onOk={() => addRefuel()}
+                        onCancel={() => setIsRefuelModalVisible(false)}
+                    >
+                        <Form>
+                            <Form.Item label="Liters">
+                                <Input
+                                    type="text"
+                                    name="liters"
+                                    value={refuel.liters}
+                                    onChange={handleRefuelChange}
+                                />
+                            </Form.Item>
+
+                            <Form.Item label="Type">
+                                <Input
+                                    type="text"
+                                    id="type"
+                                    name="type"
+                                    value={refuel.type}
+                                    onChange={handleRefuelChange}
+                                />
+                            </Form.Item>
+
+                            <Form.Item label="Cost per Liter">
+                                <Input
+                                    type="number"
+                                    id="cost"
+                                    name="cost"
+                                    value={refuel.cost}
+                                    onChange={handleRefuelChange}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                    <Modal
+                        title="Spend fuel"
+                        visible={isSpendModalVisible}
+                        onOk={() => spendFuel()}
+                        onCancel={() => setIsSpendModalVisible(false)}
+                    >
+                        <Form>
+                            <Form.Item label="Liters">
+                                <Input
+                                    type="text"
+                                    name="liters"
+                                    value={refuel.liters}
+                                    onChange={handleRefuelChange}
                                 />
                             </Form.Item>
                         </Form>
@@ -1300,6 +1607,103 @@ export default function VehicleDetailsComponent(selected) {
                                     name="type"
                                     value={selectedLight.type}
                                     onChange={handleLightChange}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                    <Modal
+                        title="Pneumatic Change"
+                        visible={isPneumaticChangeModalVisible}
+                        onOk={() => okPneumaticChange()}
+                        onCancel={() => setIsPneumaticChangeModalVisible(false)}
+                    >
+                        <Row>
+                            <Col span={12}>
+                                <p className="font-bold">Position</p>
+                                <p>{selectedPneumatic.position}</p>
+                            </Col>
+                            <Col span={12}>
+                                <p className="font-bold">Status</p>
+                                <p
+                                    className={`${
+                                        selectedPneumatic.wear < 25
+                                            ? "text-green-500"
+                                            : selectedPneumatic.wear > 25 &&
+                                              selectedPneumatic.wear <= 50
+                                            ? "text-yellow-500"
+                                            : selectedPneumatic.wear > 50 &&
+                                              selectedPneumatic.wear <= 75
+                                            ? "text-red-500"
+                                            : "text-gray-500"
+                                    }`}
+                                >
+                                    {selectedPneumatic.wear}
+                                </p>
+                            </Col>
+                        </Row>
+                        <Form className="mt-5">
+                            <Form.Item label="Brand">
+                                <Input
+                                    type="text"
+                                    name="brand"
+                                    value={selectedPneumatic.brand}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Model">
+                                <Input
+                                    type="text"
+                                    name="model"
+                                    value={selectedPneumatic.model}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Size">
+                                <Input
+                                    type="text"
+                                    name="size"
+                                    value={selectedPneumatic.size}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Type">
+                                <Input
+                                    type="text"
+                                    name="type"
+                                    value={selectedPneumatic.type}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Pressure">
+                                <Input
+                                    type="text"
+                                    name="pressure"
+                                    value={selectedPneumatic.pressure}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Diameter">
+                                <Input
+                                    type="text"
+                                    name="diameter"
+                                    value={selectedPneumatic.diameter}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Width">
+                                <Input
+                                    type="text"
+                                    name="width"
+                                    value={selectedPneumatic.width}
+                                    onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Height">
+                                <Input
+                                    type="text"
+                                    name="height"
+                                    value={selectedPneumatic.height}
+                                    onChange={handlePneumaticChange}
                                 />
                             </Form.Item>
                         </Form>
