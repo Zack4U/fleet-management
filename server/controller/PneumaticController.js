@@ -33,13 +33,41 @@ const getPneumaticById = async (req, res) => {
 
 // Create a new pneumatic
 const createPneumatic = async (req, res) => {
-    const { size, brand, type } = req.body;
+    const {
+        brand,
+        model,
+        size,
+        type,
+        pressure,
+        diameter,
+        width,
+        height,
+        position,
+        pneumaticId,
+        vehicleId,
+    } = req.body;
     try {
+        await prisma.pneumatic.update({
+            where: { id: pneumaticId },
+            data: {
+                in_use: false,
+            },
+        });
+
         const newPneumatic = await prisma.pneumatic.create({
             data: {
-                size: parseInt(size),
                 brand,
+                model,
+                size,
                 type,
+                pressure: parseInt(pressure),
+                diameter: parseInt(diameter),
+                width: parseInt(width),
+                height: parseInt(height),
+                position,
+                vehicle: {
+                    connect: { id: vehicleId },
+                },
             },
         });
         res.status(201).json(newPneumatic);
