@@ -409,7 +409,7 @@ const reviewBattery = async (req, res) => {
         const updatedVehicle = await prisma.vehicle.update({
             where: { id },
             data: {
-                last_battery_review: new Date(),
+                last_review_battery: new Date(),
             },
         });
 
@@ -431,7 +431,7 @@ const reviewPneumatic = async (req, res) => {
         const updatedVehicle = await prisma.vehicle.update({
             where: { id },
             data: {
-                last_pneumatic_review: new Date(),
+                last_review_pneumatic: new Date(),
             },
         });
 
