@@ -21,7 +21,7 @@ router.patch("/edit/:id", upload.none(), FuelController.updateFuel);
 router.delete("/delete/:id", FuelController.deleteFuel);
 
 // Refuel a tank
-router.post("/refuel/:id", upload.none(), FuelController.refuel);
+router.post("/refuels/:id", upload.none(), FuelController.refuel);
 
 // Spend fuel
 router.post("/spend/:id", upload.none(), FuelController.spendFuel);
