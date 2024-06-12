@@ -12,6 +12,7 @@ export const PATHS = {
         LIGHTS: "/lights",
         OILS: "/oils",
         PNEUMATICS: "/pneumatics",
+        MAINTENANCES: "/maintenances",
     },
     USER_ROUTES: {
         GET: "/",
@@ -90,5 +91,13 @@ export const PATHS = {
         CREATE: "/new",
         UPDATE: "/edit",
         DELETE: "/delete",
+    },
+    MAINTENANCE_ROUTES: {
+        GET: "/",
+        GET_BY_ID: "/",
+        CREATE: "/new",
+        UPDATE: "/edit",
+        DELETE: "/delete",
+        GET_VEHICLE_MAINTENANCES: "/vehicle",
     },
 };
