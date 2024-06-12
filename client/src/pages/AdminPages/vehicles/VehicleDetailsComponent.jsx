@@ -27,6 +27,11 @@ import { Maintenance } from "../../../api/maintenance";
 import { getVehicle, editVehicle } from "../../../slices/vehicleSlice";
 import { addOil, updateOil } from "../../../slices/oilSlice";
 import { addRefuel, getRefuels } from "../../../slices/refuelSlice";
+import { addCooling, updateCooling } from "../../../slices/coolingSlice";
+import { addLight, updateLight } from "../../../slices/lightSlice";
+import { addPneumatic, updatePneumatic } from "../../../slices/pneumaticSlice";
+import { addBattery, updateBattery } from "../../../slices/batterySlice";
+import { addMaintenance } from "../../../slices/maintenanceSlice";
 import { updateFuel } from "../../../slices/fuelSlice";
 import {
     BgColorsOutlined,
@@ -54,9 +59,16 @@ export default function VehicleDetailsComponent(selected) {
     const lightApi = new Light();
     const pneumaticApi = new Pneumatic();
     const batteryApi = new Battery();
+    const maintenanceApi = new Maintenance();
 
     const [useDataLoaded, setUseDataLoaded] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(selected.vehicle);
+
+    const [selectedMaintenance, setSelectedMaintenance] = useState({
+        schedule_date: "",
+        type: "",
+        vehicleId: "",
+    });
     const [refuels, setRefuels] = useState([]);
     const [isSelectOpen, setIsSelectOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -71,12 +83,14 @@ export default function VehicleDetailsComponent(selected) {
     const [isRefuelModalVisible, setIsRefuelModalVisible] = useState(false);
     const [isSpendModalVisible, setIsSpendModalVisible] = useState(false);
     const [isBatteryModalVisible, setIsBatteryModalVisible] = useState(false);
+    const [isMaintenanceModalVisible, setIsMaintenanceModalVisible] =
+        useState(false);
     const [selectedLight, setSelectedLight] = useState({});
     const [selectedPneumatic, setSelectedPneumatic] = useState({});
     const [selectedBattery, setSelectedBattery] = useState({});
     const [refuel, setRefuel] = useState({});
     const [batteryColor, setBatteryColor] = useState("white");
-    const [MaintenanceTable, setMaintenanceTable] = useState([]);
+    const [maintenances, setMaintenances] = useState([{}]);
 
     useEffect(() => {
         const fetchVehicle = async () => {
@@ -134,11 +148,11 @@ export default function VehicleDetailsComponent(selected) {
     useEffect(() => {
         const fetchMaintenances = async () => {
             try {
-                const res = await vehicleApi.getMaintenances(
+                const res = await maintenanceApi.getVehicleMaintenances(
                     selectedVehicle.id
                 );
                 if (res) {
-                    setMaintenanceTable(res);
+                    setMaintenances(res);
                 } else {
                     console.log("No maintenances found");
                 }
@@ -148,7 +162,7 @@ export default function VehicleDetailsComponent(selected) {
         };
 
         fetchMaintenances();
-    }, [selectedVehicle]);
+    }, [selectedVehicle.id]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -157,22 +171,6 @@ export default function VehicleDetailsComponent(selected) {
         const day = ("0" + date.getDate()).slice(-2);
         return `${year}-${month}-${day}`;
     };
-
-    const maintenanceColumns = [
-        { title: "ID", dataIndex: "id", key: "id" },
-        {
-            title: "Scheduled Date",
-            dataIndex: "schedule_date",
-            key: "schedule_date",
-        },
-        { title: "Finish Date", dataIndex: "finish_date", key: "finish_date" },
-        { title: "Type", dataIndex: "type", key: "type" },
-        { title: "Cost", dataIndex: "cost", key: "cost" },
-        { title: "Notes", dataIndex: "notes", key: "notes" },
-        { title: "Status", dataIndex: "status", key: "status" },
-        { title: "Created At", dataIndex: "createdAt", key: "createdAt" },
-        { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt" },
-    ];
 
     const handleChange = (e) => {
         setSelectedVehicle({
@@ -230,6 +228,21 @@ export default function VehicleDetailsComponent(selected) {
         setSelectedBattery({
             ...selectedBattery,
             [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleMaintenanceChange = (e) => {
+        console.log(e.target.name, e.target.value);
+        setSelectedMaintenance({
+            ...selectedMaintenance,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleMaintenanceSelect = (value) => {
+        setSelectedMaintenance({
+            ...selectedMaintenance,
+            type: value,
         });
     };
 
@@ -511,6 +524,26 @@ export default function VehicleDetailsComponent(selected) {
             setIsBatteryModalVisible(false);
         } catch (error) {
             console.error("Error changing battery: ", error);
+        }
+    };
+
+    const okMaintenanceCreate = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("schedule_date", selectedMaintenance.schedule_date);
+            formData.append("finish_date", selectedMaintenance.finish_date);
+            formData.append("type", selectedMaintenance.type);
+            formData.append("cost", selectedMaintenance.cost);
+            formData.append("notes", selectedMaintenance.notes);
+            formData.append("status", selectedMaintenance.status);
+            formData.append("vehicleId", selectedVehicle.id);
+
+            const res = await maintenanceApi.addMaintenance(formData);
+            console.log(res);
+            setMaintenances([...maintenances, res]);
+            setIsMaintenanceModalVisible(false);
+        } catch (error) {
+            console.error("Error creating maintenance: ", error);
         }
     };
 
@@ -1746,23 +1779,45 @@ export default function VehicleDetailsComponent(selected) {
                                 gutter={24}
                                 className="flex align-middle justify-center items-center"
                             >
-                                <Button className="text-lg bg-blue-500 text-white flex items-center">
+                                <Button
+                                    className="text-lg bg-blue-500 text-white flex items-center"
+                                    onClick={setIsMaintenanceModalVisible}
+                                >
                                     Schedule Maintenance
                                 </Button>
                             </Row>
                             <Row>
                                 <p className="text-lg">Next Maintenances</p>
                             </Row>
-                            <Row>
-                                <Table>
+                            <Row className="flex align-middle items-center justify-center">
+                                <Table dataSource={maintenances}>
                                     <Table.Column
-                                        title="Date"
-                                        dataIndex="date"
-                                    ></Table.Column>
+                                        title="Scheduled Date"
+                                        dataIndex="schedule_date"
+                                        key="schedule_date"
+                                        render={(schedule_date) =>
+                                            moment(schedule_date).format(
+                                                "YYYY-MM-DD HH:mm"
+                                            )
+                                        }
+                                    />
+
                                     <Table.Column
                                         title="Type"
                                         dataIndex="type"
-                                    ></Table.Column>
+                                        key="type"
+                                    />
+
+                                    <Table.Column
+                                        title="Notes"
+                                        dataIndex="notes"
+                                        key="notes"
+                                    />
+                                    <Table.Column
+                                        title="Status"
+                                        dataIndex="status"
+                                        key="status"
+                                    />
                                 </Table>
                             </Row>
                         </TabPane>
@@ -2121,6 +2176,73 @@ export default function VehicleDetailsComponent(selected) {
                                     name="amperage"
                                     value={selectedBattery.amperage}
                                     onChange={handleBatteryChange}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                    <Modal
+                        title="Maintenance Schedule"
+                        visible={isMaintenanceModalVisible}
+                        onOk={() => okMaintenanceCreate()}
+                        onCancel={() => setIsMaintenanceModalVisible(false)}
+                    >
+                        <Form>
+                            <Form.Item label="Scheduled Date" required>
+                                <Input
+                                    type="date"
+                                    name="schedule_date"
+                                    value={selectedMaintenance.schedule_date}
+                                    onChange={handleMaintenanceChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Type" required>
+                                <Select
+                                    type="text"
+                                    name="type"
+                                    value={selectedMaintenance.type}
+                                    onChange={handleMaintenanceSelect}
+                                >
+                                    <Option value="PREVENTIVE">
+                                        Preventive
+                                    </Option>
+                                    <Option value="CORRECTIVE">
+                                        Corrective
+                                    </Option>
+                                    <Option value="REGULAR">Regular</Option>
+                                    <Option value="EMERGENCY">Emergency</Option>
+                                    <Option value="REPAIR">Repair</Option>
+                                    <Option value="OIL_CHANGE">
+                                        Oil Change
+                                    </Option>
+                                    <Option value="COOLING_CHANGE">
+                                        Cooling Change
+                                    </Option>
+                                    <Option value="LIGHT_REVIEW">
+                                        Light Review
+                                    </Option>
+                                    <Option value="LIGHT_CHANGE">
+                                        Light Change
+                                    </Option>
+                                    <Option value="PNEUMATIC_REVIEW">
+                                        Pneumatic Review
+                                    </Option>
+                                    <Option value="PNEUMATIC_CHANGE">
+                                        Pneumatic Change
+                                    </Option>
+                                    <Option value="BATTERY_REVIEW">
+                                        Battery Review
+                                    </Option>
+                                    <Option value="BATTERY_CHANGE">
+                                        Battery Change
+                                    </Option>
+                                </Select>
+                            </Form.Item>
+                            <Form.Item label="Notes" required>
+                                <Input
+                                    type="text"
+                                    name="notes"
+                                    value={selectedMaintenance.notes}
+                                    onChange={handleMaintenanceChange}
                                 />
                             </Form.Item>
                         </Form>
