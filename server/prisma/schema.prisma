@@ -138,28 +138,31 @@ model Lights {
 }
 
 model Battery {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  brand     String   @default("default")
-  type      String   @default("default")
-  voltage   Float    @default(12)
-  amperage  Float    @default(100)
-  in_use    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
-  vehicleId String?  @db.ObjectId
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  brand     String        @default("default")
+  type      String        @default("default")
+  voltage   Float         @default(12)
+  amperage  Float         @default(100)
+  status    BatteryStatus @default(GOOD)
+  in_use    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  vehicle   Vehicle?      @relation(fields: [vehicleId], references: [id])
+  vehicleId String?       @db.ObjectId
 }
 
 model Maintenance {
-  id        String            @id @default(auto()) @map("_id") @db.ObjectId
-  type      MaintenanceType
-  cost      Float
-  notes     String?
-  status    MaintenanceStatus @default(PENDING)
-  vehicleId String            @db.ObjectId
-  vehicle   Vehicle           @relation(fields: [vehicleId], references: [id])
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
+  schedule_date DateTime
+  finish_date   DateTime?
+  type          MaintenanceType
+  cost          Float?
+  notes         String?
+  status        MaintenanceStatus @default(PENDING)
+  vehicleId     String            @db.ObjectId
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id])
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
 
 model Route {
@@ -180,9 +183,17 @@ model Route {
 enum MaintenanceType {
   PREVENTIVE
   CORRECTIVE
-  REGURAL
+  REGULAR
   EMERGENCY
-  PNEUMATICS_CHANGE
+  OIL_CHANGE
+  COOLING_CHANGE
+  LIGHT_CHANGE
+  PNEUMATIC_CHANGE
+  BATTERY_CHANGE
+  LIGHT_REVIEW
+  PNEUMATIC_REVIEW
+  BATTERY_REVIEW
+  REPAIR
 }
 
 enum MaintenanceStatus {
@@ -207,6 +218,13 @@ enum RouteStatus {
 }
 
 enum LightStatus {
+  GOOD
+  REGULAR
+  BAD
+  BROKEN
+}
+
+enum BatteryStatus {
   GOOD
   REGULAR
   BAD
