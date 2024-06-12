@@ -115,7 +115,7 @@ const refuel = async (req, res) => {
                 last_refuel: new Date(),
             },
         });
-        res.status(201).json(newRefuel);
+        res.status(201).json(newFuel);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Failed to create fuel" });

@@ -9,6 +9,7 @@ import coolingReducer from "./coolingSlice";
 import fuelReducer from "./fuelSlice";
 import pneumaticReducer from "./pneumaticSlice";
 import refuelReducer from "./refuelSlice";
+import maintenanceReducer from "./maintenanceSlice";
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
         fuel: fuelReducer,
         pneumatic: pneumaticReducer,
         refuel: refuelReducer,
+        maintenance: maintenanceReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

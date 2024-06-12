@@ -13,6 +13,7 @@ const PneumaticRoutes = require("./routes/PneumaticRoutes");
 const CoolingRoutes = require("./routes/CoolingRoutes");
 const fuelRoutes = require("./routes/FuelRoutes");
 const LightRoutes = require("./routes/LightRoutes");
+const MaintenanceRoutes = require("./routes/MaintenanceRoutes");
 
 const generalRoutes = require("./routes/GeneralRoutes");
 
@@ -42,6 +43,7 @@ app.use("/api/pneumatics", PneumaticRoutes);
 app.use("/api/coolings", CoolingRoutes);
 app.use("/api/fuels", fuelRoutes);
 app.use("/api/lights", LightRoutes);
+app.use("/api/maintenances", MaintenanceRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
