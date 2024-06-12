@@ -1828,7 +1828,52 @@ export default function VehicleDetailsComponent(selected) {
                                 </span>
                             }
                             key="7"
-                        ></TabPane>
+                        >
+                            <div className="flex flex-col items-center justify-center h-full">
+                                {selectedVehicle.legals.toUpperCase() ===
+                                "UP TO DATE" ? (
+                                    <>
+                                        <svg
+                                            className="w-20 h-20 text-green-500"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <p className="mt-5 text-xl font-bold">
+                                            Up to date
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg
+                                            className="w-20 h-20 text-red-500"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
+                                        </svg>
+                                        <p className="mt-5 text-xl font-bold">
+                                            {selectedVehicle.legals}
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        </TabPane>
                     </Tabs>
                     <Modal
                         title="Oil Change"
