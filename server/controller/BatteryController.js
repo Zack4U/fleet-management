@@ -33,14 +33,30 @@ const getBatteryById = async (req, res) => {
 
 // Create a new batter
 const createBattery = async (req, res) => {
-    const { brand, type, voltage, amperage } = req.body;
+    const { brand, type, voltage, amperage, vehicleId } = req.body;
     try {
+        const oldBattery = await prisma.battery.findMany({
+            where: { vehicleId: vehicleId, in_use: true },
+        });
+
+        for (let battery of oldBattery) {
+            await prisma.battery.update({
+                where: { id: battery.id },
+                data: {
+                    in_use: false,
+                },
+            });
+        }
+
         const newBattery = await prisma.battery.create({
             data: {
                 brand,
                 type,
-                voltage,
-                amperage,
+                voltage: parseFloat(voltage),
+                amperage: parseFloat(amperage),
+                vehicle: {
+                    connect: { id: vehicleId },
+                },
             },
         });
         res.status(201).json(newBattery);

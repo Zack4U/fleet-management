@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import TruckSVG from "../../../assets/truck.svg";
+import BatterySVG from "../../../assets/battery.svg";
 import {
     Modal,
     Row,
@@ -22,6 +23,7 @@ import { Fuel } from "../../../api/fuel";
 import { Light } from "../../../api/light";
 import { Pneumatic } from "../../../api/pneumatic";
 import { Battery } from "../../../api/battery";
+import { Maintenance } from "../../../api/maintenance";
 import { getVehicle, editVehicle } from "../../../slices/vehicleSlice";
 import { addOil, updateOil } from "../../../slices/oilSlice";
 import { addRefuel, getRefuels } from "../../../slices/refuelSlice";
@@ -68,10 +70,13 @@ export default function VehicleDetailsComponent(selected) {
         useState(false);
     const [isRefuelModalVisible, setIsRefuelModalVisible] = useState(false);
     const [isSpendModalVisible, setIsSpendModalVisible] = useState(false);
+    const [isBatteryModalVisible, setIsBatteryModalVisible] = useState(false);
     const [selectedLight, setSelectedLight] = useState({});
     const [selectedPneumatic, setSelectedPneumatic] = useState({});
     const [selectedBattery, setSelectedBattery] = useState({});
     const [refuel, setRefuel] = useState({});
+    const [batteryColor, setBatteryColor] = useState("white");
+    const [MaintenanceTable, setMaintenanceTable] = useState([]);
 
     useEffect(() => {
         const fetchVehicle = async () => {
@@ -80,6 +85,7 @@ export default function VehicleDetailsComponent(selected) {
                 const res = await vehicleApi.getVehicle(id);
                 dispatch(getVehicle(res));
                 setSelectedVehicle(res);
+
                 setUseDataLoaded(true);
             } catch (error) {
                 console.error("Error fetching vehicle details: ", error);
@@ -107,6 +113,43 @@ export default function VehicleDetailsComponent(selected) {
         fetchRefuels();
     }, [isRefuelModalVisible]);
 
+    useEffect(() => {
+        const fetchBattery = async () => {
+            if (selectedVehicle.battery && selectedVehicle.battery[0]) {
+                if (selectedVehicle.battery[0].status === "GOOD") {
+                    setBatteryColor("green");
+                } else if (selectedVehicle.battery[0].status === "REGULAR") {
+                    setBatteryColor("yellow");
+                } else if (selectedVehicle.battery[0].status === "BAD") {
+                    setBatteryColor("red");
+                } else {
+                    setBatteryColor("white");
+                }
+            }
+        };
+
+        fetchBattery();
+    }, [selectedVehicle]);
+
+    useEffect(() => {
+        const fetchMaintenances = async () => {
+            try {
+                const res = await vehicleApi.getMaintenances(
+                    selectedVehicle.id
+                );
+                if (res) {
+                    setMaintenanceTable(res);
+                } else {
+                    console.log("No maintenances found");
+                }
+            } catch (error) {
+                console.error("Error fetching maintenances: ", error);
+            }
+        };
+
+        fetchMaintenances();
+    }, [selectedVehicle]);
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const year = date.getFullYear();
@@ -114,6 +157,22 @@ export default function VehicleDetailsComponent(selected) {
         const day = ("0" + date.getDate()).slice(-2);
         return `${year}-${month}-${day}`;
     };
+
+    const maintenanceColumns = [
+        { title: "ID", dataIndex: "id", key: "id" },
+        {
+            title: "Scheduled Date",
+            dataIndex: "schedule_date",
+            key: "schedule_date",
+        },
+        { title: "Finish Date", dataIndex: "finish_date", key: "finish_date" },
+        { title: "Type", dataIndex: "type", key: "type" },
+        { title: "Cost", dataIndex: "cost", key: "cost" },
+        { title: "Notes", dataIndex: "notes", key: "notes" },
+        { title: "Status", dataIndex: "status", key: "status" },
+        { title: "Created At", dataIndex: "createdAt", key: "createdAt" },
+        { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt" },
+    ];
 
     const handleChange = (e) => {
         setSelectedVehicle({
@@ -163,6 +222,13 @@ export default function VehicleDetailsComponent(selected) {
     const handlePneumaticChange = (e) => {
         setSelectedPneumatic({
             ...selectedPneumatic,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleBatteryChange = (e) => {
+        setSelectedBattery({
+            ...selectedBattery,
             [e.target.name]: e.target.value,
         });
     };
@@ -255,6 +321,11 @@ export default function VehicleDetailsComponent(selected) {
             )
         );
         setIsPneumaticChangeModalVisible(true);
+    };
+
+    const handleBatteryClick = () => {
+        setSelectedBattery(selectedVehicle.battery[0]);
+        setIsBatteryModalVisible(true);
     };
 
     const addRefuel = async () => {
@@ -415,6 +486,34 @@ export default function VehicleDetailsComponent(selected) {
         }
     };
 
+    const okBatteryChange = async () => {
+        try {
+            console.log("Battery change details: ", selectedBattery);
+            const formDataToSubmit = new FormData();
+            formDataToSubmit.append("vehicleId", selectedVehicle.id);
+            formDataToSubmit.append("brand", selectedBattery.brand);
+            formDataToSubmit.append("type", selectedBattery.type);
+            formDataToSubmit.append("amperage", selectedBattery.amperage);
+            formDataToSubmit.append("voltage", selectedBattery.voltage);
+
+            const battery = await batteryApi.addBattery(formDataToSubmit);
+
+            await vehicleApi.changeBattery(selectedVehicle.id).then((res) => {
+                console.log(res);
+                dispatch(
+                    editVehicle({
+                        vehicleId: selectedVehicle.id,
+                        updateVehicleData: res,
+                    })
+                );
+            });
+
+            setIsBatteryModalVisible(false);
+        } catch (error) {
+            console.error("Error changing battery: ", error);
+        }
+    };
+
     const reviewLights = async () => {
         try {
             const formData = new FormData();
@@ -446,6 +545,23 @@ export default function VehicleDetailsComponent(selected) {
             );
         } catch (error) {
             console.error("Error reviewing pneumatics: ", error);
+        }
+    };
+
+    const reviewBattery = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("vehicleId", selectedVehicle.id);
+
+            const res = await vehicleApi.reviewBattery(selectedVehicle.id);
+            dispatch(
+                editVehicle({
+                    vehicleId: selectedVehicle.id,
+                    updateVehicleData: res,
+                })
+            );
+        } catch (error) {
+            console.error("Error reviewing battery: ", error);
         }
     };
 
@@ -1400,7 +1516,224 @@ export default function VehicleDetailsComponent(selected) {
                                 </span>
                             }
                             key="5"
-                        ></TabPane>
+                        >
+                            <Row gutter={24}>
+                                <Row className="w-full flex justify-center items-center mb-10">
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <p clas>Last Review</p>
+                                        <Input
+                                            type="date"
+                                            value={formatDate(
+                                                selectedVehicle.last_review_battery
+                                            )}
+                                            disabled={!isEditing}
+                                        ></Input>
+                                    </Col>
+                                    <Col
+                                        span={2}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <ArrowRightOutlined />
+                                    </Col>
+
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <p>Next Review</p>
+                                        <Input
+                                            type="date"
+                                            value={changePeriod(
+                                                selectedVehicle.last_review_battery,
+                                                selectedVehicle.battery_review_period
+                                            )}
+                                            disabled={!isEditing}
+                                        ></Input>
+                                    </Col>
+                                    <Col
+                                        span={2}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <RollbackOutlined />
+                                    </Col>
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <p>Review Frequency</p>
+                                        <Select
+                                            type="text"
+                                            defaultValue={
+                                                selectedVehicle.battery_review_period
+                                            }
+                                            disabled={!isEditing}
+                                            className="w-full"
+                                        >
+                                            <Option value="daily">Daily</Option>
+                                            <Option value="weekly">
+                                                Weekly
+                                            </Option>
+                                            <Option value="monthly">
+                                                Monthly
+                                            </Option>
+                                            <Option value="quarterly">
+                                                Quarterly
+                                            </Option>
+                                            <Option value="half-yearly">
+                                                Half Yearly
+                                            </Option>
+                                            <Option value="yearly">
+                                                Yearly
+                                            </Option>
+                                        </Select>
+                                    </Col>
+                                    <Col
+                                        span={4}
+                                        className="h-full flex flex-col justify-center items-center"
+                                    >
+                                        <Button
+                                            className="flex align-middle items-center bg-blue-500 text-white"
+                                            onClick={reviewBattery}
+                                        >
+                                            <CheckOutlined />
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Row>
+                            <Row gutter={24}>
+                                <Col
+                                    span={10}
+                                    className="flex items-center align-middle justify-center"
+                                >
+                                    <svg
+                                        width="200"
+                                        height="200"
+                                        viewBox="0 0 200 200"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        color={batteryColor}
+                                        onClick={handleBatteryClick}
+                                    >
+                                        <rect
+                                            x="20"
+                                            y="60"
+                                            width="160"
+                                            height="100"
+                                            fill="grey"
+                                            stroke="black"
+                                            stroke-width="2"
+                                        />
+
+                                        <rect
+                                            x="20"
+                                            y="40"
+                                            width="160"
+                                            height="20"
+                                            fill="currentColor"
+                                            stroke="black"
+                                            stroke-width="2"
+                                        />
+
+                                        <circle
+                                            cx="50"
+                                            cy="40"
+                                            r="10"
+                                            fill="currentColor"
+                                            stroke="black"
+                                            stroke-width="2"
+                                        />
+
+                                        <circle
+                                            cx="150"
+                                            cy="40"
+                                            r="10"
+                                            fill="currentColor"
+                                            stroke="black"
+                                            stroke-width="2"
+                                        />
+                                        <text
+                                            x="50%"
+                                            y="50%"
+                                            dominant-baseline="middle"
+                                            text-anchor="middle"
+                                            fill="white"
+                                            font-size="20"
+                                        >
+                                            {selectedVehicle.battery[0].status}
+                                        </text>
+                                    </svg>
+                                </Col>
+                                <Col span={14}>
+                                    <Row
+                                        gutter={24}
+                                        className="flex items-center align-middle justify-center mt-5"
+                                    >
+                                        <Col span={12}>
+                                            <p className="font-bold">Brand</p>
+                                            <p>
+                                                {
+                                                    selectedVehicle.battery[0]
+                                                        .brand
+                                                }
+                                            </p>
+                                        </Col>
+                                        <Col span={12}>
+                                            <p className="font-bold">Type</p>
+                                            <p>
+                                                {
+                                                    selectedVehicle.battery[0]
+                                                        .type
+                                                }
+                                            </p>
+                                        </Col>
+                                    </Row>
+                                    <Row
+                                        gutter={24}
+                                        className="flex items-center align-middle justify-center mt-5"
+                                    >
+                                        <Col span={12}>
+                                            <p className="font-bold">Voltage</p>
+                                            <p>
+                                                {
+                                                    selectedVehicle.battery[0]
+                                                        .voltage
+                                                }{" "}
+                                                V
+                                            </p>
+                                        </Col>
+                                        <Col span={12}>
+                                            <p className="font-bold">
+                                                Amperage
+                                            </p>
+                                            <p>
+                                                {
+                                                    selectedVehicle.battery[0]
+                                                        .amperage
+                                                }{" "}
+                                                A
+                                            </p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                            <Row
+                                gutter={24}
+                                className="flex justify-center align-middle items-center text-center "
+                            >
+                                <div className="w-1/2 mt-5">
+                                    <p>Last Change</p>
+                                    <Input
+                                        type="date"
+                                        value={formatDate(
+                                            selectedVehicle.last_battery_change
+                                        )}
+                                        disabled={!isEditing}
+                                    ></Input>
+                                </div>
+                            </Row>
+                        </TabPane>
                         <TabPane
                             tab={
                                 <span>
@@ -1408,7 +1741,31 @@ export default function VehicleDetailsComponent(selected) {
                                 </span>
                             }
                             key="6"
-                        ></TabPane>
+                        >
+                            <Row
+                                gutter={24}
+                                className="flex align-middle justify-center items-center"
+                            >
+                                <Button className="text-lg bg-blue-500 text-white flex items-center">
+                                    Schedule Maintenance
+                                </Button>
+                            </Row>
+                            <Row>
+                                <p className="text-lg">Next Maintenances</p>
+                            </Row>
+                            <Row>
+                                <Table>
+                                    <Table.Column
+                                        title="Date"
+                                        dataIndex="date"
+                                    ></Table.Column>
+                                    <Table.Column
+                                        title="Type"
+                                        dataIndex="type"
+                                    ></Table.Column>
+                                </Table>
+                            </Row>
+                        </TabPane>
                         <TabPane
                             tab={
                                 <span>
@@ -1704,6 +2061,66 @@ export default function VehicleDetailsComponent(selected) {
                                     name="height"
                                     value={selectedPneumatic.height}
                                     onChange={handlePneumaticChange}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                    <Modal
+                        title="Battery Change"
+                        visible={isBatteryModalVisible}
+                        onOk={() => okBatteryChange()}
+                        onCancel={() => setIsBatteryModalVisible(false)}
+                    >
+                        <Row>
+                            <Col span={24}>
+                                <p className="font-bold">Status</p>
+                                <p
+                                    className={`${
+                                        selectedBattery.status === "GOOD"
+                                            ? "text-green-500"
+                                            : selectedBattery.status ===
+                                              "REGULAR"
+                                            ? "text-yellow-500"
+                                            : selectedBattery.status === "BAD"
+                                            ? "text-red-500"
+                                            : "text-gray-500"
+                                    }`}
+                                >
+                                    {selectedBattery.status}
+                                </p>
+                            </Col>
+                        </Row>
+                        <Form className="mt-5">
+                            <Form.Item label="Brand">
+                                <Input
+                                    type="text"
+                                    name="brand"
+                                    value={selectedBattery.brand}
+                                    onChange={handleBatteryChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Type">
+                                <Input
+                                    type="text"
+                                    name="type"
+                                    value={selectedBattery.type}
+                                    onChange={handleBatteryChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Voltage">
+                                <Input
+                                    type="number"
+                                    name="voltage"
+                                    value={selectedBattery.voltage}
+                                    onChange={handleBatteryChange}
+                                />
+                            </Form.Item>
+                            <Form.Item label="Amperage">
+                                <Input
+                                    type="number"
+                                    name="amperage"
+                                    value={selectedBattery.amperage}
+                                    onChange={handleBatteryChange}
                                 />
                             </Form.Item>
                         </Form>
