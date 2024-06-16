@@ -68,7 +68,7 @@ const createVehicle = async (req, res) => {
         capacity_cooling,
     } = req.body;
     const image = req.file ? req.file.filename : "camion-coca_cola.jpg";
-
+    const position = { lat: 5.070275, lng: -75.513817 };
     try {
         if (
             isNaN(Number(front_right_tires)) ||
@@ -160,6 +160,7 @@ const createVehicle = async (req, res) => {
                     })),
                 },
                 image,
+                position,
             },
         });
 

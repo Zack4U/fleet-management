@@ -10,6 +10,7 @@ import fuelReducer from "./fuelSlice";
 import pneumaticReducer from "./pneumaticSlice";
 import refuelReducer from "./refuelSlice";
 import maintenanceReducer from "./maintenanceSlice";
+import routeReducer from "./routeSlice";
 
 export const store = configureStore({
     reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
         pneumatic: pneumaticReducer,
         refuel: refuelReducer,
         maintenance: maintenanceReducer,
+        route: routeReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

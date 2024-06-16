@@ -8,8 +8,6 @@ module.exports = function (req, res, next) {
         return res.status(401).json({ error: "No token provided" });
     }
 
-    console.log(token);
-
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) {
             console.log(err);

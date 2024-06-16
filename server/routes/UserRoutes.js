@@ -22,6 +22,9 @@ router.use(AuthMiddleware);
 // Get all users
 router.get("/", isAdmin, UserController.getUsers);
 
+// Get drivers
+router.get("/drivers", isAdmin, UserController.getDrivers);
+
 // Get a single user by ID
 router.get("/:id", isAdmin, UserController.getUserById);
 
