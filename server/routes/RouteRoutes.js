@@ -19,4 +19,7 @@ router.patch("/edit/:id", upload.none(), RouteController.updateRoute);
 // Delete a task by ID
 router.delete("/delete/:id", RouteController.deleteRoute);
 
+// Get Vehicle routes
+router.get("/vehicle/:id", RouteController.getVehicleRoutes);
+
 module.exports = router;
