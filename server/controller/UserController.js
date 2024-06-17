@@ -172,13 +172,19 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-    const { id } = req.params;
+    const { token } = req.body;
+    console.log(token);
     try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const id = decoded.id;
         const user = await prisma.user.findUnique({
             where: { id },
         });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
+        }
+        if (user.active_user === false) {
+            return res.status(401).json({ error: "User already logged out" });
         }
         user.active_user = false;
         await prisma.user.update({
