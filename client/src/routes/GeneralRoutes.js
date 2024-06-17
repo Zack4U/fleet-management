@@ -6,12 +6,9 @@ import PageNotFoundComponent from "../components/error/PageNotFoundComponent";
 export const GeneralRoutes = () => {
     return (
         <Routes>
-            <>
-                <Route path="/login" element={<LoginComponent />} />
-                <Route path="/home" element={<LoginComponent />} />
-                <Route path="/" element={<LoginComponent />} />
-                <Route path="*" element={<PageNotFoundComponent />} />
-            </>
+            <Route path="/login" element={<LoginComponent />} />
+            <Route path="/home" element={<LoginComponent />} />
+            <Route path="/" element={<LoginComponent />} />
         </Routes>
     );
 };
