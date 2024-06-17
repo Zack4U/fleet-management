@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function MyRouteListComponent() {
+export const MyRouteListComponent = () => {
     return <div>MyRouteListComponent</div>;
-}
+};
