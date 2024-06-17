@@ -1,14 +1,22 @@
-import React, { useState } from "react";
-import { Layout, Menu, Row, Switch } from "antd";
-import { UserOutlined, CarOutlined, ProjectOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Button, Layout, Menu, Row, Switch } from "antd";
+import {
+    UserOutlined,
+    CarOutlined,
+    ProjectOutlined,
+    LogoutOutlined,
+    PictureOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { ThemeContext } from "../../ThemeContext";
+import { User } from "../../api/user";
+import { useDispatch } from "react-redux";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
-const items = [
+const admin_items = [
     {
         key: "sub1",
         label: "Users",
@@ -52,13 +60,77 @@ const items = [
     },
 ];
 
+const driver_items = [
+    {
+        key: "sub1",
+        label: "Vehicles",
+        icon: <CarOutlined />,
+        children: [
+            {
+                key: "g1",
+                label: <Link to="/driver/vehicles">My Vehicles</Link>,
+            },
+        ],
+    },
+    {
+        key: "sub2",
+        label: "Tasks",
+        icon: <ProjectOutlined />,
+        children: [
+            {
+                key: "g2",
+                label: <Link to="/driver/tasks">My Tasks</Link>,
+            },
+        ],
+    },
+    {
+        key: "sub3",
+        label: "Routes",
+        icon: <PictureOutlined />,
+        children: [
+            {
+                key: "g3",
+                label: <Link to="/driver/routes">My Routes</Link>,
+            },
+        ],
+    },
+];
+
 export const SideMenuComponent = () => {
+    const dispatch = useDispatch();
     const [collapsed, setCollapsed] = useState(false);
     const { theme, changeTheme } = useContext(ThemeContext);
-
+    const userApi = new User();
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const [items, setItems] = useState([]);
     const onCollapse = (collapsed) => {
         setCollapsed(collapsed);
     };
+
+    const logout = () => {
+        try {
+            userApi.logoutUser(token).then(() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                window.location.href = "/login";
+            });
+        } catch (error) {
+            console.error("Error logging out: ", error);
+        }
+    };
+
+    useEffect(() => {
+        const items_select = () => {
+            if (role === "ADMIN") {
+                setItems(admin_items);
+            } else if (role === "DRIVER") {
+                setItems(driver_items);
+            }
+        };
+
+        items_select();
+    }, [dispatch]);
 
     return (
         <Sider
@@ -74,15 +146,31 @@ export const SideMenuComponent = () => {
                 theme={theme}
             >
                 <img
-                    src="http://localhost:3001/api/users/avatar/logo-coca_cola.jpg"
+                    src="http://localhost:3001/api/avatar/logo-coca_cola.jpg"
                     alt="Logo"
                     style={{
                         margin: "10px",
                         height: collapsed ? "40px" : "80px",
-                        borderRadius: "50%", // Esto hace que la imagen sea redonda
-                        objectFit: "cover", // Esto asegura que la imagen cubra todo el espacio disponible
+                        borderRadius: "50%",
+                        objectFit: "cover",
                     }}
                 />
+            </Row>
+            <Row
+                justify="center"
+                align="middle"
+                style={{ height: "64px", marginBottom: "16px" }}
+                theme={theme}
+            >
+                <Button
+                    type="primary"
+                    danger
+                    onClick={logout}
+                    className="flex align-center justify-center items-center font-bold"
+                >
+                    <LogoutOutlined />
+                    Log out
+                </Button>
             </Row>
             <Row>
                 <Menu
