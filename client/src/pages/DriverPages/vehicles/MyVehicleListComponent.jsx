@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function MyVehicleListComponent() {
+export const MyVehicleListComponent = () => {
     return <div>MyVehicleListComponent</div>;
-}
+};
