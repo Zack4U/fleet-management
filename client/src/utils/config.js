@@ -15,6 +15,14 @@ export const PATHS = {
         MAINTENANCES: "/maintenances",
         ROUTES: "/routes",
     },
+    GENERAL_ROUTES: {
+        LOGIN: "/login",
+        LOGOUT: "/logout",
+        REGISTER: "/register",
+        FORGOT_PASSWORD: "/forgot-password",
+        RESET_PASSWORD: "/reset-password",
+        UPLOAD_AVATAR: "/upload-avatar",
+    },
     USER_ROUTES: {
         GET: "/",
         GET_BY_ID: "/",
@@ -22,8 +30,6 @@ export const PATHS = {
         UPDATE: "/edit",
         DELETE: "/delete",
         GET_AVATAR: "/avatar",
-        LOGIN: "/login",
-        LOGOUT: "/logout",
     },
     VEHICLE_ROUTES: {
         GET: "/",

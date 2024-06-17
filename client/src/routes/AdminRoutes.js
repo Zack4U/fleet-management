@@ -8,6 +8,7 @@ import { VehicleCreateComponent } from "../pages/AdminPages/vehicles/VehicleCrea
 import { DragNDrop } from "../pages/AdminPages/tasks/DragNDrop";
 import { AdminDashboardComponent } from "../pages/AdminPages/admin/AdminDashboardComponent";
 import { ToastContainer, toast } from "react-toastify";
+import PageNotFoundComponent from "../components/error/PageNotFoundComponent";
 import "react-toastify/dist/ReactToastify.css";
 import RouteListComponent from "../pages/AdminPages/routes/RouteListComponent";
 import RouteCreateComponent from "../pages/AdminPages/routes/RouteCreateComponent";
@@ -16,7 +17,6 @@ export const AdminRoutes = () => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     const navigate = useNavigate();
-    console.log(token, role);
 
     useEffect(() => {
         if (token == null || role !== "ADMIN") {
@@ -61,14 +61,7 @@ export const AdminRoutes = () => {
                     path="/admin/tasks"
                     element={loadLayout(AdminLayout, DragNDrop)}
                 />
-                <Route
-                    path="/admin/routes"
-                    element={loadLayout(AdminLayout, RouteListComponent)}
-                />
-                <Route
-                    path="/admin/routes/new"
-                    element={loadLayout(AdminLayout, RouteCreateComponent)}
-                />
+                <Route path="*" element={<PageNotFoundComponent />} />
             </Routes>
         </>
     );

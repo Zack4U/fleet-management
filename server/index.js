@@ -30,7 +30,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 //Configure General Routes
-app.use("/api/users", generalRoutes);
+app.use("/api", generalRoutes);
 
 // Configure routes
 app.use("/api/users", userRoutes);

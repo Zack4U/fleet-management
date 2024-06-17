@@ -2,14 +2,15 @@ import { PATHS } from "../utils/config";
 
 export class User {
     usersAPI = PATHS.BASE_PATH + PATHS.API_ROUTES.USERS;
+    generalAPI = PATHS.BASE_PATH;
     get = PATHS.USER_ROUTES.GET;
     getById = PATHS.USER_ROUTES.GET_BY_ID;
     create = PATHS.USER_ROUTES.CREATE;
     update = PATHS.USER_ROUTES.UPDATE;
     delete = PATHS.USER_ROUTES.DELETE;
-    getAvatar = PATHS.USER_ROUTES.GET_AVATAR;
-    login = PATHS.USER_ROUTES.LOGIN;
-    logout = PATHS.USER_ROUTES.LOGOUT;
+    getAvatarURL = PATHS.USER_ROUTES.GET_AVATAR;
+    login = PATHS.GENERAL_ROUTES.LOGIN;
+    logout = PATHS.GENERAL_ROUTES.LOGOUT;
 
     token = localStorage.getItem("token");
 
@@ -118,7 +119,7 @@ export class User {
     };
 
     getAvatar = async (id) => {
-        const URL = `${this.usersAPI}${this.getAvatar}/${id}`;
+        const URL = `${this.generalAPI}${this.getAvatarURL}/${id}`;
         console.log(`[USER API] ${URL}`);
         try {
             const params = {
@@ -135,7 +136,7 @@ export class User {
     };
 
     loginUser = async (formData) => {
-        const URL = `${this.usersAPI}${this.login}`;
+        const URL = `${this.generalAPI}${this.login}`;
         console.log(`[USER API] ${URL}`);
         try {
             const params = {
@@ -154,19 +155,20 @@ export class User {
         }
     };
 
-    logoutUser = async (id) => {
+    logoutUser = async (token) => {
         try {
-            const URL = `${this.usersAPI}${this.logout}/${id}`;
+            const URL = `${this.generalAPI}${this.logout}`;
             console.log(`[USER API] ${URL}`);
+            const formData = new FormData();
+            formData.append("token", token);
             const params = {
                 method: "POST",
+                body: formData,
             };
             const res = fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
             const data = res.json();
             console.log(data);
-            localStorage.removeItem("token");
-            localStorage.removeItem("role");
             return data;
         } catch (error) {}
     };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Alert, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
@@ -7,6 +7,7 @@ import logoLogin from "../../assets/logo-coca_cola.svg";
 import { User } from "../../api/user";
 import { useDispatch } from "react-redux";
 import { login } from "../../slices/userSlice";
+import UserContext from "../../utils/userContext";
 
 const LoginComponent = () => {
     const [error, setError] = useState(null);
@@ -14,6 +15,7 @@ const LoginComponent = () => {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
     const userApi = new User();
+    const { setRole } = useContext(UserContext);
 
     const validateInput = (values) => {
         const usernameRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/;
@@ -50,7 +52,14 @@ const LoginComponent = () => {
                         return;
                     }
                     dispatch(login(res));
-                    navigate("/admin/dashboard");
+                    setRole(res.role);
+                    if (res.role === "DRIVER") {
+                        navigate("/driver/dashboard");
+                    } else if (res.role === "ADMIN") {
+                        navigate("/admin/dashboard");
+                    } else {
+                        navigate("/login");
+                    }
                     setLoading(false);
                 })
                 .catch((error) => {
