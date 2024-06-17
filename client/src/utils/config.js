@@ -13,6 +13,7 @@ export const PATHS = {
         OILS: "/oils",
         PNEUMATICS: "/pneumatics",
         MAINTENANCES: "/maintenances",
+        ROUTES: "/routes",
     },
     GENERAL_ROUTES: {
         LOGIN: "/login",
@@ -105,5 +106,13 @@ export const PATHS = {
         UPDATE: "/edit",
         DELETE: "/delete",
         GET_VEHICLE_MAINTENANCES: "/vehicle",
+    },
+    ROUTE_ROUTES: {
+        GET: "/",
+        GET_BY_ID: "/",
+        CREATE: "/new",
+        UPDATE: "/edit",
+        DELETE: "/delete",
+        GET_VEHICLE_ROUTES: "/vehicle",
     },
 };

@@ -10,6 +10,8 @@ import { AdminDashboardComponent } from "../pages/AdminPages/admin/AdminDashboar
 import { ToastContainer, toast } from "react-toastify";
 import PageNotFoundComponent from "../components/error/PageNotFoundComponent";
 import "react-toastify/dist/ReactToastify.css";
+import RouteListComponent from "../pages/AdminPages/routes/RouteListComponent";
+import RouteCreateComponent from "../pages/AdminPages/routes/RouteCreateComponent";
 
 export const AdminRoutes = () => {
     const token = localStorage.getItem("token");

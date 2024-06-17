@@ -172,4 +172,24 @@ export class User {
             return data;
         } catch (error) {}
     };
+
+    getDrivers = async () => {
+        const URL = `${this.usersAPI}${this.get}drivers`;
+        console.log(`[USER API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[USER API] Error getting drivers: ", error);
+        }
+    };
 }

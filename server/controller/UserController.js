@@ -239,6 +239,20 @@ const signUp = async (req, res) => {
     }
 };
 
+const getDrivers = async (req, res) => {
+    try {
+        const drivers = await prisma.user.findMany({
+            where: {
+                role: "DRIVER",
+            },
+        });
+        res.status(201).json(drivers);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to get drivers" });
+    }
+};
+
 module.exports = {
     getUsers,
     getUserById,
@@ -249,4 +263,5 @@ module.exports = {
     login,
     logout,
     signUp,
+    getDrivers,
 };
