@@ -58,6 +58,21 @@ const admin_items = [
             },
         ],
     },
+    {
+        key: "sub4",
+        label: "Routes",
+        icon: <PictureOutlined />,
+        children: [
+            {
+                key: "g6",
+                label: <Link to="/admin/routes">List</Link>,
+            },
+            {
+                key: "g7",
+                label: <Link to="/admin/routes/new">Create</Link>,
+            },
+        ],
+    },
 ];
 
 const driver_items = [

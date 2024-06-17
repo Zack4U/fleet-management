@@ -31,7 +31,7 @@ const getRouteById = async (req, res) => {
 
 // Create a new route
 const createRoute = async (req, res) => {
-    const {
+    let {
         vehicleId,
         driverId,
         startLocation,
@@ -41,15 +41,21 @@ const createRoute = async (req, res) => {
         distance,
         dateScheduled,
     } = req.body;
-    const startLocationP = JSON.parse(startLocation);
-    const endLocationP = JSON.parse(endLocation);
-    const additionalLocationsP = JSON.parse(additionalLocations);
+    if (startLocation) {
+        startLocation = JSON.parse(startLocation);
+    }
+    if (endLocation) {
+        endLocation = JSON.parse(endLocation);
+    }
+    if (additionalLocations) {
+        additionalLocations = JSON.parse(additionalLocations);
+    }
     try {
         const newRoute = await prisma.route.create({
             data: {
-                startLocation: startLocationP,
-                endLocation: endLocationP,
-                additionalLocations: additionalLocationsP,
+                startLocation,
+                endLocation,
+                additionalLocations,
                 duration,
                 distance,
                 dateScheduled: new Date(dateScheduled),
