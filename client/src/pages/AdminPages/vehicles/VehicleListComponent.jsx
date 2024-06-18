@@ -23,6 +23,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { useContext } from "react";
 import { ThemeContext } from "../../../ThemeContext";
 import "tailwindcss/tailwind.css";
+import { toast } from "react-toastify";
 import VehicleDetailsComponent from "./VehicleDetailsComponent";
 
 const { confirm } = Modal;
@@ -74,6 +75,7 @@ export const VehicleListComponent = () => {
                     .catch((error) => {
                         console.error("Failed to delete vehicle", error);
                     });
+                toast.success("Vehicle deleted successfully");
             },
             onCancel() {
                 console.log("Cancel delete");
@@ -110,6 +112,7 @@ export const VehicleListComponent = () => {
                 );
                 setIsModalVisible(false);
                 setSelectedVehicle(null);
+                toast.success("Vehicle updated successfully");
                 window.location.reload();
             })
             .catch((error) => {
@@ -259,7 +262,7 @@ export const VehicleListComponent = () => {
                 >
                     <img
                         className="w-full h-32 object-cover mb-4"
-                        src={`http://localhost:3001/api/vehicles/image/${selectedVehicle.image}`}
+                        src={`http://localhost:3001/api/image/${selectedVehicle.image}`}
                         alt="Vehicle"
                     />
                     <Form>

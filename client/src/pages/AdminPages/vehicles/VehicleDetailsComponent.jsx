@@ -43,7 +43,9 @@ import {
     ArrowRightOutlined,
     RollbackOutlined,
     CheckOutlined,
+    EditOutlined,
 } from "@ant-design/icons";
+import { toast } from "react-toastify";
 import "tailwindcss/tailwind.css";
 
 const { Option } = Select;
@@ -70,6 +72,8 @@ export default function VehicleDetailsComponent(selected) {
         vehicleId: "",
     });
     const [refuels, setRefuels] = useState([]);
+    const [oilHistory, setOilHistory] = useState([]);
+    const [coolingHistory, setCoolingHistory] = useState([]);
     const [isSelectOpen, setIsSelectOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isOilChangeModalVisible, setIsOilChangeModalVisible] =
@@ -84,6 +88,10 @@ export default function VehicleDetailsComponent(selected) {
     const [isSpendModalVisible, setIsSpendModalVisible] = useState(false);
     const [isBatteryModalVisible, setIsBatteryModalVisible] = useState(false);
     const [isMaintenanceModalVisible, setIsMaintenanceModalVisible] =
+        useState(false);
+    const [isOilHistoryModalVisible, setIsOilHistoryModalVisible] =
+        useState(false);
+    const [isCoolingHistoryModalVisible, setIsCoolingHistoryModalVisible] =
         useState(false);
     const [selectedLight, setSelectedLight] = useState({});
     const [selectedPneumatic, setSelectedPneumatic] = useState({});
@@ -126,6 +134,44 @@ export default function VehicleDetailsComponent(selected) {
 
         fetchRefuels();
     }, [isRefuelModalVisible]);
+
+    useEffect(() => {
+        const fetchOils = async () => {
+            try {
+                const res = await oilApi.getVehicleOils(selectedVehicle.id);
+                if (res) {
+                    console.log(res);
+                    setOilHistory(res);
+                } else {
+                    console.log("No oils found");
+                }
+            } catch (error) {
+                console.error("Error fetching oils: ", error);
+            }
+        };
+
+        fetchOils();
+    }, [isOilHistoryModalVisible]);
+
+    useEffect(() => {
+        const fetchCooling = async () => {
+            try {
+                const res = await coolingApi.getVehicleCoolings(
+                    selectedVehicle.id
+                );
+                if (res) {
+                    console.log(res);
+                    setCoolingHistory(res);
+                } else {
+                    console.log("No oils found");
+                }
+            } catch (error) {
+                console.error("Error fetching oils: ", error);
+            }
+        };
+
+        fetchCooling();
+    }, [isOilHistoryModalVisible]);
 
     useEffect(() => {
         const fetchBattery = async () => {
@@ -301,9 +347,10 @@ export default function VehicleDetailsComponent(selected) {
                 ...selectedVehicle,
                 statusId: value,
             });
-
+            toast.success("Status changed successfully");
             setIsSelectOpen(false);
         } catch (error) {
+            toast.error("Error changing status");
             console.error("Error changing status: ", error);
         }
     };
@@ -356,9 +403,10 @@ export default function VehicleDetailsComponent(selected) {
                 ...selectedVehicle,
                 fuel: res,
             });
-
+            toast.success("Refuel successful");
             setIsRefuelModalVisible(false);
         } catch (error) {
+            toast.error("Error refueling");
             console.error("Error refueling: ", error);
         }
     };
@@ -375,9 +423,10 @@ export default function VehicleDetailsComponent(selected) {
                 ...selectedVehicle,
                 fuel: res,
             });
-
+            toast.success("Fuel spent successfully");
             setIsSpendModalVisible(false);
         } catch (error) {
+            toast.error("Error spending fuel");
             console.error("Error spending fuel: ", error);
         }
     };
@@ -402,9 +451,10 @@ export default function VehicleDetailsComponent(selected) {
                     })
                 );
             });
-
+            toast.success("Oil changed successfully");
             setIsOilChangeModalVisible(false);
         } catch (error) {
+            toast.error("Error changing oil");
             console.error("Error changing oil: ", error);
         }
     };
@@ -431,9 +481,10 @@ export default function VehicleDetailsComponent(selected) {
                     })
                 );
             });
-
+            toast.success("Cooling changed successfully");
             setIsCoolingChangeModalVisible(false);
         } catch (error) {
+            toast.error("Error changing cooling");
             console.error("Error changing oil: ", error);
         }
     };
@@ -458,9 +509,10 @@ export default function VehicleDetailsComponent(selected) {
                     })
                 );
             });
-
+            toast.success("Light changed successfully");
             setIsLightsModalVisible(false);
         } catch (error) {
+            toast.error("Error changing light");
             console.error("Error changing oil: ", error);
         }
     };
@@ -492,9 +544,10 @@ export default function VehicleDetailsComponent(selected) {
                     })
                 );
             });
-
+            toast.success("Pneumatic changed successfully");
             setIsPneumaticChangeModalVisible(false);
         } catch (error) {
+            toast.error("Error changing pneumatic");
             console.error("Error changing pneumatic: ", error);
         }
     };
@@ -520,9 +573,10 @@ export default function VehicleDetailsComponent(selected) {
                     })
                 );
             });
-
+            toast.success("Battery changed successfully");
             setIsBatteryModalVisible(false);
         } catch (error) {
+            toast.error("Error changing battery");
             console.error("Error changing battery: ", error);
         }
     };
@@ -541,8 +595,11 @@ export default function VehicleDetailsComponent(selected) {
             const res = await maintenanceApi.addMaintenance(formData);
             console.log(res);
             setMaintenances([...maintenances, res]);
+
+            toast.success("Maintenance created successfully");
             setIsMaintenanceModalVisible(false);
         } catch (error) {
+            toast.error("Error creating maintenance");
             console.error("Error creating maintenance: ", error);
         }
     };
@@ -559,6 +616,7 @@ export default function VehicleDetailsComponent(selected) {
                     updateVehicleData: res,
                 })
             );
+            toast.success("Lights reviewed successfully");
         } catch (error) {
             console.error("Error reviewing lights: ", error);
         }
@@ -576,6 +634,7 @@ export default function VehicleDetailsComponent(selected) {
                     updateVehicleData: res,
                 })
             );
+            toast.success("Pneumatics reviewed successfully");
         } catch (error) {
             console.error("Error reviewing pneumatics: ", error);
         }
@@ -593,8 +652,67 @@ export default function VehicleDetailsComponent(selected) {
                     updateVehicleData: res,
                 })
             );
+            toast.success("Battery reviewed successfully");
         } catch (error) {
             console.error("Error reviewing battery: ", error);
+        }
+    };
+
+    const saveFrequencys = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("vehicleId", selectedVehicle.id);
+            formData.append(
+                "oil_change_period",
+                selectedVehicle.oil_change_period
+            );
+            formData.append(
+                "cooling_change_period",
+                selectedVehicle.cooling_change_period
+            );
+
+            const res = await vehicleApi.updateVehicle(
+                selectedVehicle.id,
+                formData
+            );
+            dispatch(
+                editVehicle({
+                    vehicleId: selectedVehicle.id,
+                    updateVehicleData: res,
+                })
+            );
+            toast.success("Frequencys saved successfully");
+        } catch (error) {
+            console.error("Error saving frequencys: ", error);
+        }
+    };
+
+    const handleChangeFrequency = async (e) => {
+        const type = e.type;
+        const value = e.value.toUpperCase();
+        setSelectedVehicle({
+            ...selectedVehicle,
+            [type]: value,
+        });
+
+        try {
+            const formData = new FormData();
+            const id = selectedVehicle.id;
+            formData.append(type, value);
+
+            await vehicleApi.updateVehicle(id, formData).then((res) => {
+                console.log(res);
+                dispatch(
+                    editVehicle({
+                        vehicleId: id,
+                        updateVehicleData: res,
+                    })
+                );
+            });
+            toast.success("Frequency changed successfully");
+        } catch (error) {
+            toast.error("Error changing frequency");
+            console.log(error);
         }
     };
 
@@ -605,18 +723,18 @@ export default function VehicleDetailsComponent(selected) {
                     <div className="flex">
                         <img
                             className="w/2 h-40 object-cover mb-4"
-                            src={`http://localhost:3001/api/vehicles/image/${selectedVehicle.image}`}
+                            src={`http://localhost:3001/api/image/${selectedVehicle.image}`}
                             alt="Vehicle"
                         />
                         <div className="w-full">
                             <Row className="mb-5">
-                                <Col span={12}>
+                                <Col span={8}>
                                     <h2 className="text-2xl font-bold">
                                         {selectedVehicle.plate}
                                     </h2>
                                 </Col>
                                 <Col
-                                    span={12}
+                                    span={8}
                                     className="w-1/2 flex items-center"
                                 >
                                     <div
@@ -664,6 +782,17 @@ export default function VehicleDetailsComponent(selected) {
                                             {selectedVehicle.statusId}
                                         </p>
                                     )}
+                                </Col>
+                                <Col
+                                    span="8"
+                                    className="flex items-center justify-center"
+                                >
+                                    <EditOutlined
+                                        className="text-blue-500 cursor-pointer"
+                                        onClick={() => {
+                                            setIsEditing(!isEditing);
+                                        }}
+                                    />
                                 </Col>
                             </Row>
                             <Row className="mb-5 ">
@@ -717,8 +846,17 @@ export default function VehicleDetailsComponent(selected) {
                                             </h3>
                                         </Col>
                                         <Col className="flex items-center text-blue-500">
-                                            <RollbackOutlined />
-                                            <p className="ml-1">History</p>
+                                            <div
+                                                className="flex items-center cursor-pointer"
+                                                onClick={() =>
+                                                    setIsOilHistoryModalVisible(
+                                                        true
+                                                    )
+                                                }
+                                            >
+                                                <RollbackOutlined />
+                                                <p className="ml-1">History</p>
+                                            </div>
                                         </Col>
                                     </Row>
                                     <Row>
@@ -749,10 +887,20 @@ export default function VehicleDetailsComponent(selected) {
                                             <p>Change Frequency</p>
                                             <Select
                                                 type="text"
+                                                name="oil_change_period"
                                                 defaultValue={
                                                     selectedVehicle.oil_change_period
                                                 }
                                                 disabled={!isEditing}
+                                                value={
+                                                    selectedVehicle.oil_change_period
+                                                }
+                                                onChange={(e) =>
+                                                    handleChangeFrequency({
+                                                        type: "oil_change_period",
+                                                        value: e,
+                                                    })
+                                                }
                                             >
                                                 <Option value="daily">
                                                     Daily
@@ -803,8 +951,17 @@ export default function VehicleDetailsComponent(selected) {
                                             </h3>
                                         </Col>
                                         <Col className="flex items-center text-blue-500">
-                                            <RollbackOutlined />
-                                            <p className="ml-1">History</p>
+                                            <div
+                                                className="flex items-center cursor-pointer"
+                                                onClick={() =>
+                                                    setIsCoolingHistoryModalVisible(
+                                                        true
+                                                    )
+                                                }
+                                            >
+                                                <RollbackOutlined />
+                                                <p className="ml-1">History</p>
+                                            </div>
                                         </Col>
                                     </Row>
                                     <Row>
@@ -839,6 +996,15 @@ export default function VehicleDetailsComponent(selected) {
                                                     selectedVehicle.cooling_change_period
                                                 }
                                                 disabled={!isEditing}
+                                                value={
+                                                    selectedVehicle.cooling_change_period
+                                                }
+                                                onChange={(e) =>
+                                                    handleChangeFrequency({
+                                                        type: "cooling_change_period",
+                                                        value: e,
+                                                    })
+                                                }
                                             >
                                                 <Option value="daily">
                                                     Daily
@@ -1038,8 +1204,17 @@ export default function VehicleDetailsComponent(selected) {
                                             defaultValue={
                                                 selectedVehicle.light_review_period
                                             }
+                                            value={
+                                                selectedVehicle.light_review_period
+                                            }
                                             disabled={!isEditing}
                                             className="w-full"
+                                            onChange={(e) =>
+                                                handleChangeFrequency({
+                                                    type: "light_review_period",
+                                                    value: e,
+                                                })
+                                            }
                                         >
                                             <Option value="daily">Daily</Option>
                                             <Option value="weekly">
@@ -1273,8 +1448,17 @@ export default function VehicleDetailsComponent(selected) {
                                             defaultValue={
                                                 selectedVehicle.pneumatic_review_period
                                             }
+                                            value={
+                                                selectedVehicle.pneumatic_review_period
+                                            }
                                             disabled={!isEditing}
                                             className="w-full"
+                                            onChange={(e) =>
+                                                handleChangeFrequency({
+                                                    type: "pneumatic_review_period",
+                                                    value: e,
+                                                })
+                                            }
                                         >
                                             <Option value="daily">Daily</Option>
                                             <Option value="weekly">
@@ -1602,8 +1786,17 @@ export default function VehicleDetailsComponent(selected) {
                                             defaultValue={
                                                 selectedVehicle.battery_review_period
                                             }
+                                            value={
+                                                selectedVehicle.battery_review_period
+                                            }
                                             disabled={!isEditing}
                                             className="w-full"
+                                            onChange={(e) =>
+                                                handleChangeFrequency({
+                                                    type: "battery_review_period",
+                                                    value: e,
+                                                })
+                                            }
                                         >
                                             <Option value="daily">Daily</Option>
                                             <Option value="weekly">
@@ -2291,6 +2484,61 @@ export default function VehicleDetailsComponent(selected) {
                                 />
                             </Form.Item>
                         </Form>
+                    </Modal>
+                    <Modal
+                        title="Oil Change History"
+                        visible={isOilHistoryModalVisible}
+                        onOk={() => setIsOilHistoryModalVisible(false)}
+                        onCancel={() => setIsOilHistoryModalVisible(false)}
+                    >
+                        <Table dataSource={oilHistory}>
+                            <Table.Column
+                                title="Date"
+                                dataIndex="createdAt"
+                                key="createdAt"
+                                render={(date) =>
+                                    moment(date).format("YYYY-MM-DD HH:mm")
+                                }
+                            ></Table.Column>
+                            <Table.Column
+                                title="Brand"
+                                dataIndex="brand"
+                            ></Table.Column>
+                            <Table.Column
+                                title="Type"
+                                dataIndex="type"
+                            ></Table.Column>
+                            <Table.Column
+                                title="Liters"
+                                dataIndex="liters"
+                            ></Table.Column>
+                        </Table>
+                    </Modal>
+
+                    <Modal
+                        title="Cooling Change History"
+                        visible={isCoolingHistoryModalVisible}
+                        onOk={() => setIsCoolingHistoryModalVisible(false)}
+                        onCancel={() => setIsCoolingHistoryModalVisible(false)}
+                    >
+                        <Table dataSource={coolingHistory}>
+                            <Table.Column
+                                title="Date"
+                                dataIndex="createdAt"
+                                key="createdAt"
+                                render={(date) =>
+                                    moment(date).format("YYYY-MM-DD HH:mm")
+                                }
+                            ></Table.Column>
+                            <Table.Column
+                                title="Brand"
+                                dataIndex="brand"
+                            ></Table.Column>
+                            <Table.Column
+                                title="Liters"
+                                dataIndex="liters"
+                            ></Table.Column>
+                        </Table>
                     </Modal>
                 </>
             )}

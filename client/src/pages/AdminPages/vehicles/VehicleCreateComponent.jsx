@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { Vehicle } from "../../../api/vehicle";
 import { Form, Input, Button, Upload, Modal, Row, Col } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 export const VehicleCreateComponent = () => {
     const dispatch = useDispatch();
@@ -56,6 +57,7 @@ export const VehicleCreateComponent = () => {
                 form.resetFields();
                 setModalVisible(true);
             }
+            toast.success("Vehicle created successfully!");
         } catch (error) {
             form.resetFields();
             console.log(error);
