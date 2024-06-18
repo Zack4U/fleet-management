@@ -7,6 +7,7 @@ export class Cooling {
     create = PATHS.COOLING_ROUTES.CREATE;
     update = PATHS.COOLING_ROUTES.UPDATE;
     delete = PATHS.COOLING_ROUTES.DELETE;
+    getVehicle = PATHS.COOLING_ROUTES.GET_VEHICLE_COOLINGS;
 
     token = localStorage.getItem("token");
 
@@ -112,6 +113,29 @@ export class Cooling {
             return data;
         } catch (error) {
             console.log("[COOLING API] Error updating cooling: ", error);
+        }
+    };
+
+    getVehicleCoolings = async (id) => {
+        const URL = `${this.coolingAPI}${this.getVehicle}/${id}`;
+        console.log(`[COOLING API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log(
+                "[COOLING API] Error getting vehicle coolings: ",
+                error
+            );
         }
     };
 }
