@@ -300,4 +300,24 @@ export class Vehicle {
             console.log("[VEHICLE API] Error reviewing light: ", error);
         }
     };
+
+    getMyVehicles = async () => {
+        const URL = `${this.vehicleAPI}${this.get}my`;
+        console.log(`[VEHICLE API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[VEHICLE API] Error getting my vehicles: ", error);
+        }
+    };
 }

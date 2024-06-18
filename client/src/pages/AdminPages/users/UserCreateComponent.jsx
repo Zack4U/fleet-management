@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { User } from "../../../api/user";
 import { Form, Input, Button, Upload, Modal, Row, Breadcrumb } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 export const UserCreateComponent = () => {
     const dispatch = useDispatch();
@@ -51,8 +52,11 @@ export const UserCreateComponent = () => {
                 form.resetFields();
                 setModalVisible(true);
             }
+
+            toast.success("User created successfully!");
         } catch (error) {
             form.resetFields();
+            toast.error("Error creating user!");
             console.log(error);
         }
     };

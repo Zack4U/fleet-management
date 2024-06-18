@@ -51,6 +51,19 @@ const createRoute = async (req, res) => {
         additionalLocations = JSON.parse(additionalLocations);
     }
     try {
+        const vehicle = await prisma.vehicle.findUnique({
+            where: { id: vehicleId },
+        });
+
+        if (!vehicle) {
+            return res.status(404).json({ error: "Vehicle not found" });
+        }
+
+        await prisma.vehicle.update({
+            where: { id: vehicleId },
+            data: { driverId: driverId },
+        });
+
         const newRoute = await prisma.route.create({
             data: {
                 startLocation,
@@ -106,11 +119,13 @@ const updateRoute = async (req, res) => {
                 duration: duration,
                 distance: distance,
                 dateScheduled: dateScheduled,
-                startDateTime: startDateTime ? new Date(startDateTime) : null,
-                endDateTime: endDateTime ? new Date(endDateTime) : null,
+                startDateTime: startDateTime
+                    ? new Date(startDateTime)
+                    : undefined,
+                endDateTime: endDateTime ? new Date(endDateTime) : undefined,
                 status: status,
-                vehicle: { connect: { id: vehicleId } },
-                driver: { connect: { id: driverId } },
+                vehicle: vehicleId ? { connect: { id: vehicleId } } : undefined,
+                driver: driverId ? { connect: { id: driverId } } : undefined,
             },
         });
         res.status(200).json(updatedRoute);
@@ -151,6 +166,24 @@ const getVehicleRoutes = async (req, res) => {
     }
 };
 
+const getMyRoutes = async (req, res) => {
+    const user = req.user;
+    const { id } = user;
+    try {
+        const routes = await prisma.route.findMany({
+            where: { driverId: id },
+        });
+        if (routes.length === 0) {
+            return res.status(404).json({ error: "No routes found" });
+        }
+
+        res.status(200).json(routes);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to get routes" });
+    }
+};
+
 module.exports = {
     getRoutes,
     getRouteById,
@@ -158,4 +191,5 @@ module.exports = {
     updateRoute,
     deleteRoute,
     getVehicleRoutes,
+    getMyRoutes,
 };

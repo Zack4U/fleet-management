@@ -12,6 +12,7 @@ import { useContext } from "react";
 import { ThemeContext } from "../../ThemeContext";
 import { User } from "../../api/user";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -113,6 +114,8 @@ const driver_items = [
 
 export const SideMenuComponent = () => {
     const dispatch = useDispatch();
+
+    const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
     const { theme, changeTheme } = useContext(ThemeContext);
     const userApi = new User();
@@ -169,6 +172,10 @@ export const SideMenuComponent = () => {
                         borderRadius: "50%",
                         objectFit: "cover",
                     }}
+                    onClick={() => {
+                        navigate("/dashboard");
+                    }}
+                    className="cursor-pointer"
                 />
             </Row>
             <Row

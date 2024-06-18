@@ -18,7 +18,7 @@ const containerStyle = {
     height: "100%",
 };
 
-export const RouteViewComponent = (selected) => {
+export const MyRouteViewComponent = (selected) => {
     const dispatch = useDispatch();
     const vehicleApi = new Vehicle();
     const userApi = new User();

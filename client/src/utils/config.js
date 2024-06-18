@@ -67,6 +67,7 @@ export const PATHS = {
         CREATE: "/new",
         UPDATE: "/edit",
         DELETE: "/delete",
+        GET_VEHICLE_COOLINGS: "/vehicle",
     },
     FUEL_ROUTES: {
         GET: "/",
@@ -91,6 +92,7 @@ export const PATHS = {
         CREATE: "/new",
         UPDATE: "/edit",
         DELETE: "/delete",
+        GET_VEHICLE_OILS: "/vehicle",
     },
     PNEUMATIC_ROUTES: {
         GET: "/",

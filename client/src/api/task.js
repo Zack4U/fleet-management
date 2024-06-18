@@ -8,6 +8,8 @@ export class Task {
     update = PATHS.TASK_ROUTES.UPDATE;
     delete = PATHS.TASK_ROUTES.DELETE;
 
+    token = localStorage.getItem("token");
+
     addTask = async (formData) => {
         const URL = `${this.tasksAPI}${this.create}`;
         console.log(`[TASK API] ${URL}`);
@@ -16,6 +18,7 @@ export class Task {
             const params = {
                 method: "POST",
                 body: formData,
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -33,6 +36,7 @@ export class Task {
         try {
             const params = {
                 method: "GET",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -50,6 +54,7 @@ export class Task {
         try {
             const params = {
                 method: "GET",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -67,6 +72,7 @@ export class Task {
         try {
             const params = {
                 method: "DELETE",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -86,6 +92,7 @@ export class Task {
             const params = {
                 method: "PATCH",
                 body: formData,
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -94,6 +101,26 @@ export class Task {
             return data;
         } catch (error) {
             console.log("[TASK API] Error updating task: ", error);
+        }
+    };
+
+    getMyTasks = async () => {
+        const URL = `${this.tasksAPI}${this.get}/my`;
+        console.log(`[TASK API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[TASK API] Error getting my tasks: ", error);
         }
     };
 }

@@ -13,6 +13,7 @@ import {
 import { getUser, getUsers } from "../../../slices/userSlice";
 
 import "./DragNDrop.css";
+import { toast } from "react-toastify";
 
 const { confirm } = Modal;
 
@@ -129,6 +130,7 @@ export const DragNDrop = () => {
                     .catch((error) => {
                         console.error("Failed to delete task", error);
                     });
+                toast.success("Task deleted successfully!");
             },
             onCancel() {
                 console.log("Cancel delete");
@@ -156,7 +158,10 @@ export const DragNDrop = () => {
             if (newTask) {
                 setIsModalVisible(false);
             }
+
+            toast.success("Task created successfully!");
         } catch (error) {
+            toast.error("Error creating task!");
             console.log(error);
         }
     };
@@ -188,9 +193,11 @@ export const DragNDrop = () => {
                 );
                 setIsModalVisible(false);
                 setSelectedTask(null);
+                toast.success("Task edited successfully!");
                 window.location.reload();
             })
             .catch((error) => {
+                toast.error("Error editing task!");
                 console.error("Failed to edit vehicle", error);
             });
     };

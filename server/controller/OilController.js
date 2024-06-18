@@ -98,10 +98,24 @@ const deleteOil = async (req, res) => {
     }
 };
 
+const getVehicleOils = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await prisma.oil.findMany({
+            where: { vehicleId: id },
+        });
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to get vehicle oils" });
+    }
+};
+
 module.exports = {
     getOils,
     getOilById,
     createOil,
     updateOil,
     deleteOil,
+    getVehicleOils,
 };

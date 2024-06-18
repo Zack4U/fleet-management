@@ -43,7 +43,6 @@ import {
     ArrowRightOutlined,
     RollbackOutlined,
     CheckOutlined,
-    EditOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import "tailwindcss/tailwind.css";
@@ -51,7 +50,7 @@ import "tailwindcss/tailwind.css";
 const { Option } = Select;
 const { TabPane } = Tabs;
 
-export default function VehicleDetailsComponent(selected) {
+export const MyVehicleDetailsComponent = (selected) => {
     const dispatch = useDispatch();
 
     const vehicleApi = new Vehicle();
@@ -72,10 +71,10 @@ export default function VehicleDetailsComponent(selected) {
         vehicleId: "",
     });
     const [refuels, setRefuels] = useState([]);
-    const [oilHistory, setOilHistory] = useState([]);
-    const [coolingHistory, setCoolingHistory] = useState([]);
     const [isSelectOpen, setIsSelectOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [oilHistory, setOilHistory] = useState([]);
+    const [coolingHistory, setCoolingHistory] = useState([]);
     const [isOilChangeModalVisible, setIsOilChangeModalVisible] =
         useState(false);
     const [isCoolingChangeModalVisible, setIsCoolingChangeModalVisible] =
@@ -331,6 +330,7 @@ export default function VehicleDetailsComponent(selected) {
             const formData = new FormData();
             formData.append("statusId", value);
 
+            console.log(selectedVehicle.id, formData);
             const res = await vehicleApi.updateVehicle(
                 selectedVehicle.id,
                 formData
@@ -347,10 +347,11 @@ export default function VehicleDetailsComponent(selected) {
                 ...selectedVehicle,
                 statusId: value,
             });
+
             toast.success("Status changed successfully");
+
             setIsSelectOpen(false);
         } catch (error) {
-            toast.error("Error changing status");
             console.error("Error changing status: ", error);
         }
     };
@@ -484,7 +485,7 @@ export default function VehicleDetailsComponent(selected) {
             toast.success("Cooling changed successfully");
             setIsCoolingChangeModalVisible(false);
         } catch (error) {
-            toast.error("Error changing cooling");
+            toast.error("Error changing oil");
             console.error("Error changing oil: ", error);
         }
     };
@@ -512,7 +513,7 @@ export default function VehicleDetailsComponent(selected) {
             toast.success("Light changed successfully");
             setIsLightsModalVisible(false);
         } catch (error) {
-            toast.error("Error changing light");
+            toast.error("Error changing oil");
             console.error("Error changing oil: ", error);
         }
     };
@@ -595,7 +596,6 @@ export default function VehicleDetailsComponent(selected) {
             const res = await maintenanceApi.addMaintenance(formData);
             console.log(res);
             setMaintenances([...maintenances, res]);
-
             toast.success("Maintenance created successfully");
             setIsMaintenanceModalVisible(false);
         } catch (error) {
@@ -618,6 +618,7 @@ export default function VehicleDetailsComponent(selected) {
             );
             toast.success("Lights reviewed successfully");
         } catch (error) {
+            toast.error("Error reviewing lights");
             console.error("Error reviewing lights: ", error);
         }
     };
@@ -636,6 +637,7 @@ export default function VehicleDetailsComponent(selected) {
             );
             toast.success("Pneumatics reviewed successfully");
         } catch (error) {
+            toast.error("Error reviewing pneumatics");
             console.error("Error reviewing pneumatics: ", error);
         }
     };
@@ -654,65 +656,8 @@ export default function VehicleDetailsComponent(selected) {
             );
             toast.success("Battery reviewed successfully");
         } catch (error) {
+            toast.error("Error reviewing battery");
             console.error("Error reviewing battery: ", error);
-        }
-    };
-
-    const saveFrequencys = async () => {
-        try {
-            const formData = new FormData();
-            formData.append("vehicleId", selectedVehicle.id);
-            formData.append(
-                "oil_change_period",
-                selectedVehicle.oil_change_period
-            );
-            formData.append(
-                "cooling_change_period",
-                selectedVehicle.cooling_change_period
-            );
-
-            const res = await vehicleApi.updateVehicle(
-                selectedVehicle.id,
-                formData
-            );
-            dispatch(
-                editVehicle({
-                    vehicleId: selectedVehicle.id,
-                    updateVehicleData: res,
-                })
-            );
-            toast.success("Frequencys saved successfully");
-        } catch (error) {
-            console.error("Error saving frequencys: ", error);
-        }
-    };
-
-    const handleChangeFrequency = async (e) => {
-        const type = e.type;
-        const value = e.value.toUpperCase();
-        setSelectedVehicle({
-            ...selectedVehicle,
-            [type]: value,
-        });
-
-        try {
-            const formData = new FormData();
-            const id = selectedVehicle.id;
-            formData.append(type, value);
-
-            await vehicleApi.updateVehicle(id, formData).then((res) => {
-                console.log(res);
-                dispatch(
-                    editVehicle({
-                        vehicleId: id,
-                        updateVehicleData: res,
-                    })
-                );
-            });
-            toast.success("Frequency changed successfully");
-        } catch (error) {
-            toast.error("Error changing frequency");
-            console.log(error);
         }
     };
 
@@ -728,13 +673,13 @@ export default function VehicleDetailsComponent(selected) {
                         />
                         <div className="w-full">
                             <Row className="mb-5">
-                                <Col span={8}>
+                                <Col span={12}>
                                     <h2 className="text-2xl font-bold">
                                         {selectedVehicle.plate}
                                     </h2>
                                 </Col>
                                 <Col
-                                    span={8}
+                                    span={12}
                                     className="w-1/2 flex items-center"
                                 >
                                     <div
@@ -782,17 +727,6 @@ export default function VehicleDetailsComponent(selected) {
                                             {selectedVehicle.statusId}
                                         </p>
                                     )}
-                                </Col>
-                                <Col
-                                    span="8"
-                                    className="flex items-center justify-center"
-                                >
-                                    <EditOutlined
-                                        className="text-blue-500 cursor-pointer"
-                                        onClick={() => {
-                                            setIsEditing(!isEditing);
-                                        }}
-                                    />
                                 </Col>
                             </Row>
                             <Row className="mb-5 ">
@@ -887,20 +821,10 @@ export default function VehicleDetailsComponent(selected) {
                                             <p>Change Frequency</p>
                                             <Select
                                                 type="text"
-                                                name="oil_change_period"
                                                 defaultValue={
                                                     selectedVehicle.oil_change_period
                                                 }
                                                 disabled={!isEditing}
-                                                value={
-                                                    selectedVehicle.oil_change_period
-                                                }
-                                                onChange={(e) =>
-                                                    handleChangeFrequency({
-                                                        type: "oil_change_period",
-                                                        value: e,
-                                                    })
-                                                }
                                             >
                                                 <Option value="daily">
                                                     Daily
@@ -996,15 +920,6 @@ export default function VehicleDetailsComponent(selected) {
                                                     selectedVehicle.cooling_change_period
                                                 }
                                                 disabled={!isEditing}
-                                                value={
-                                                    selectedVehicle.cooling_change_period
-                                                }
-                                                onChange={(e) =>
-                                                    handleChangeFrequency({
-                                                        type: "cooling_change_period",
-                                                        value: e,
-                                                    })
-                                                }
                                             >
                                                 <Option value="daily">
                                                     Daily
@@ -1204,17 +1119,8 @@ export default function VehicleDetailsComponent(selected) {
                                             defaultValue={
                                                 selectedVehicle.light_review_period
                                             }
-                                            value={
-                                                selectedVehicle.light_review_period
-                                            }
                                             disabled={!isEditing}
                                             className="w-full"
-                                            onChange={(e) =>
-                                                handleChangeFrequency({
-                                                    type: "light_review_period",
-                                                    value: e,
-                                                })
-                                            }
                                         >
                                             <Option value="daily">Daily</Option>
                                             <Option value="weekly">
@@ -1448,17 +1354,8 @@ export default function VehicleDetailsComponent(selected) {
                                             defaultValue={
                                                 selectedVehicle.pneumatic_review_period
                                             }
-                                            value={
-                                                selectedVehicle.pneumatic_review_period
-                                            }
                                             disabled={!isEditing}
                                             className="w-full"
-                                            onChange={(e) =>
-                                                handleChangeFrequency({
-                                                    type: "pneumatic_review_period",
-                                                    value: e,
-                                                })
-                                            }
                                         >
                                             <Option value="daily">Daily</Option>
                                             <Option value="weekly">
@@ -1786,17 +1683,8 @@ export default function VehicleDetailsComponent(selected) {
                                             defaultValue={
                                                 selectedVehicle.battery_review_period
                                             }
-                                            value={
-                                                selectedVehicle.battery_review_period
-                                            }
                                             disabled={!isEditing}
                                             className="w-full"
-                                            onChange={(e) =>
-                                                handleChangeFrequency({
-                                                    type: "battery_review_period",
-                                                    value: e,
-                                                })
-                                            }
                                         >
                                             <Option value="daily">Daily</Option>
                                             <Option value="weekly">
@@ -2544,4 +2432,4 @@ export default function VehicleDetailsComponent(selected) {
             )}
         </>
     );
-}
+};

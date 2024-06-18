@@ -34,6 +34,10 @@ export const DriverRoutes = () => {
             <ToastContainer />
             <Routes>
                 <Route
+                    path="/dashboard"
+                    element={loadLayout(DriverLayout, DriverDashboardComponent)}
+                />
+                <Route
                     path="/driver/dashboard"
                     element={loadLayout(DriverLayout, DriverDashboardComponent)}
                 />
@@ -48,6 +52,10 @@ export const DriverRoutes = () => {
                 <Route
                     path="/driver/routes"
                     element={loadLayout(DriverLayout, MyRouteListComponent)}
+                />
+                <Route
+                    path="/login"
+                    element={loadLayout(DriverLayout, DriverDashboardComponent)}
                 />
                 <Route path="*" element={<PageNotFoundComponent />} />
             </Routes>

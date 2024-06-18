@@ -9,6 +9,8 @@ export class Route {
     delete = PATHS.ROUTE_ROUTES.DELETE;
     getVehicleRoutes = PATHS.ROUTE_ROUTES.GET_VEHICLE_ROUTES;
 
+    token = localStorage.getItem("token");
+
     addRoute = async (formData) => {
         const URL = `${this.routesAPI}${this.create}`;
         console.log(`[ROUTE API] ${URL}`);
@@ -17,6 +19,7 @@ export class Route {
             const params = {
                 method: "POST",
                 body: formData,
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -34,6 +37,7 @@ export class Route {
         try {
             const params = {
                 method: "GET",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -51,6 +55,7 @@ export class Route {
         try {
             const params = {
                 method: "GET",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -68,6 +73,7 @@ export class Route {
         try {
             const params = {
                 method: "DELETE",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -86,6 +92,7 @@ export class Route {
         try {
             const params = {
                 method: "PATCH",
+                headers: { Authorization: `Bearer ${this.token}` },
                 body: formData,
             };
             const res = await fetch(URL, params);
@@ -104,6 +111,7 @@ export class Route {
         try {
             const params = {
                 method: "GET",
+                headers: { Authorization: `Bearer ${this.token}` },
             };
             const res = await fetch(URL, params);
             if (!res.ok) throw new Error(await res.text());
@@ -112,6 +120,24 @@ export class Route {
             return data;
         } catch (error) {
             console.log("[ROUTE API] Error getting vehicle routes: ", error);
+        }
+    };
+
+    getMyRoutes = async () => {
+        const URL = `${this.routesAPI}${this.get}/my`;
+        console.log(`[ROUTE API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+                headers: { Authorization: `Bearer ${this.token}` },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[ROUTE API] Error getting my routes: ", error);
         }
     };
 }

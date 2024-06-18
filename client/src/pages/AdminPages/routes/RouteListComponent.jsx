@@ -26,12 +26,12 @@ import { Vehicle } from "../../../api/vehicle";
 import { User } from "../../../api/user";
 import moment from "moment";
 import { toast } from "react-toastify";
-import RouteViewComponent from "./RouteViewComponent";
+import { RouteViewComponent } from "./RouteViewComponent";
 import "tailwindcss/tailwind.css";
 
 const { confirm } = Modal;
 
-export default function RouteListComponent() {
+export const RouteListComponent = () => {
     const dispatch = useDispatch();
     const routes = useSelector((state) => state.route.routes);
     const routeApi = new Route();
@@ -460,4 +460,4 @@ export default function RouteListComponent() {
             )}
         </>
     );
-}
+};

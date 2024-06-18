@@ -7,6 +7,7 @@ export class Oil {
     create = PATHS.OIL_ROUTES.CREATE;
     update = PATHS.OIL_ROUTES.UPDATE;
     delete = PATHS.OIL_ROUTES.DELETE;
+    getVehicle = PATHS.OIL_ROUTES.GET_VEHICLE_OILS;
 
     token = localStorage.getItem("token");
 
@@ -112,6 +113,26 @@ export class Oil {
             return data;
         } catch (error) {
             console.log("[OIL API] Error updating oil: ", error);
+        }
+    };
+
+    getVehicleOils = async (id) => {
+        const URL = `${this.oilAPI}${this.getVehicle}/${id}`;
+        console.log(`[OIL API] ${URL}`);
+        try {
+            const params = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                },
+            };
+            const res = await fetch(URL, params);
+            if (!res.ok) throw new Error(await res.text());
+            const data = res.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.log("[OIL API] Error getting vehicle oils: ", error);
         }
     };
 }
