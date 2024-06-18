@@ -4,6 +4,9 @@ const multer = require("multer");
 
 const router = express.Router();
 const upload = multer({});
+const AuthMiddleware = require("../middleware/AuthMiddleware");
+
+router.use(AuthMiddleware);
 
 // Get all oils
 router.get("/", OilController.getOils);
@@ -19,5 +22,8 @@ router.patch("/edit/:id", upload.none(), OilController.updateOil);
 
 // Delete an oil by ID
 router.delete("/delete/:id", OilController.deleteOil);
+
+// Get all vehicle oils
+router.get("/vehicle/:id", OilController.getVehicleOils);
 
 module.exports = router;

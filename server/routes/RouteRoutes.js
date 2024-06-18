@@ -3,9 +3,14 @@ const RouteController = require("../controller/RouteController");
 const router = express.Router();
 const multer = require("multer");
 const upload = multer();
+const AuthMiddleware = require("../middleware/AuthMiddleware");
 
+router.use(AuthMiddleware);
 // Get all tasks
 router.get("/", RouteController.getRoutes);
+
+// Get my routes
+router.get("/my", RouteController.getMyRoutes);
 
 // Get a single task by ID
 router.get("/:id", RouteController.getRouteById);

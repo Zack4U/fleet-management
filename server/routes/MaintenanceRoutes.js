@@ -4,6 +4,9 @@ const multer = require("multer");
 
 const router = express.Router();
 const upload = multer({});
+const AuthMiddleware = require("../middleware/AuthMiddleware");
+
+router.use(AuthMiddleware);
 
 // Get all lights
 router.get("/", MaintenanceController.getMaintenances);

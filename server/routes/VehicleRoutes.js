@@ -2,6 +2,8 @@ const express = require("express");
 const VehicleController = require("../controller/VehicleController");
 const multer = require("multer");
 const router = express.Router();
+const AuthMiddleware = require("../middleware/AuthMiddleware");
+const isAdmin = require("../middleware/isAdmin");
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -15,14 +17,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Get all users
-router.get("/", VehicleController.getVehicles);
+router.use(AuthMiddleware);
 
-// Get a single user by ID
-router.get("/:id", VehicleController.getVehicleById);
+// Get all users
+router.get("/", isAdmin, VehicleController.getVehicles);
 
 // Create a new user
-router.post("/new", upload.single("image"), VehicleController.createVehicle);
+router.post(
+    "/new",
+    upload.single("image"),
+    isAdmin,
+    VehicleController.createVehicle
+);
 
 // Update a user by ID
 router.patch(
@@ -32,10 +38,7 @@ router.patch(
 );
 
 // Delete a user by ID
-router.delete("/delete/:id", VehicleController.deleteVehicle);
-
-// Obtener avatar por nombre
-router.get("/image/:file_name", VehicleController.getImage);
+router.delete("/delete/:id", isAdmin, VehicleController.deleteVehicle);
 
 // Change oil by Vehicle ID
 router.patch("/oil/:id", VehicleController.changeOil);
@@ -60,5 +63,11 @@ router.patch("/pneumatic/review/:id", VehicleController.reviewPneumatic);
 
 // Review light by Vehicle ID
 router.patch("/light/review/:id", VehicleController.reviewLight);
+
+// Get my vehicles
+router.get("/my", VehicleController.getMyVehicles);
+
+// Get a single user by ID
+router.get("/:id", VehicleController.getVehicleById);
 
 module.exports = router;
