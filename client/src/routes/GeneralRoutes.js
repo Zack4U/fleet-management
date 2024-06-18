@@ -9,6 +9,7 @@ export const GeneralRoutes = () => {
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/home" element={<LoginComponent />} />
             <Route path="/" element={<LoginComponent />} />
+            <Route path="*" element={<LoginComponent />} />
         </Routes>
     );
 };
