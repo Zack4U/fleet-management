@@ -173,39 +173,50 @@ const createVehicle = async (req, res) => {
 
 // Update a user by ID
 const updateVehicle = async (req, res) => {
-    const { id } = req.params;
-    const {
-        plate,
-        brand,
-        line,
-        model,
-        type,
-        capacity,
-        kilometers,
-        legals,
-        statusId,
-        fuelId,
-        pneumatics,
-        oil,
-        cooling,
-        lights,
-        battery,
-        maintenance,
-        last_maintenance,
-        last_oil_change,
-        last_cooling_change,
-        last_battery_change,
-        last_pneumatic_change,
-        last_light_change,
-        oil_change_period,
-        cooling_change_period,
-        battery_review_period,
-        pneumatic_review_period,
-    } = req.body;
-    const image = req.file
-        ? req.file.filename
-        : prisma.user.findUnique({ where: { id } }).image;
     try {
+        const { id } = req.params;
+        const {
+            plate,
+            brand,
+            line,
+            model,
+            type,
+            capacity,
+            kilometers,
+            legals,
+            statusId,
+            fuelId,
+            driverId,
+            pneumatics,
+            oil,
+            cooling,
+            lights,
+            battery,
+            maintenance,
+            last_maintenance,
+            last_oil_change,
+            last_cooling_change,
+            last_battery_change,
+            last_pneumatic_change,
+            last_light_change,
+            oil_change_period,
+            cooling_change_period,
+            battery_review_period,
+            pneumatic_review_period,
+        } = req.body;
+        const image = req.file
+            ? req.file.filename
+            : prisma.user.findUnique({ where: { id } }).image;
+        const driver = null;
+        if (driverId) {
+            driver = await prisma.user.findUnique({
+                where: { id: driverId },
+            });
+
+            if (!driver)
+                return res.status(404).json({ error: "Driver not found" });
+        }
+
         const updatedVehicle = await prisma.vehicle.update({
             where: { id },
             data: {
@@ -219,6 +230,7 @@ const updateVehicle = async (req, res) => {
                 legals,
                 statusId,
                 fuelId,
+                driverId,
                 pneumatics,
                 oil,
                 cooling,
@@ -465,6 +477,21 @@ const reviewLight = async (req, res) => {
     }
 };
 
+const getMyVehicles = async (req, res) => {
+    try {
+        const user = req.user;
+        console.log(user);
+        const { id } = user;
+        const data = await prisma.vehicle.findMany({
+            where: { driverId: id },
+        });
+        res.status(201).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to get vehicles" });
+    }
+};
+
 module.exports = {
     getVehicles,
     getVehicleById,
@@ -480,4 +507,5 @@ module.exports = {
     reviewBattery,
     reviewPneumatic,
     reviewLight,
+    getMyVehicles,
 };
