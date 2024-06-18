@@ -5,20 +5,21 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 model User {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  email            String   @unique
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  email            String    @unique
   first_name       String
   second_name      String?
   first_lastname   String
   second_lastname  String?
-  avatar           String?  @default("logo-coca_cola.jpg")
-  role             Roles    @default(DRIVER)
+  avatar           String?   @default("logo-coca_cola.jpg")
+  role             Roles     @default(DRIVER)
   current_password String
-  active_user      Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  active_user      Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   tasks            Task[]
   routes           Route[]
+  Vehicle          Vehicle[]
 }
 
 enum Roles {
@@ -61,6 +62,8 @@ model Vehicle {
   pneumatic_review_period Period        @default(HALF_YEARLY)
   light_review_period     Period        @default(YEARLY)
   position                Json
+  driver                  User?         @relation(fields: [driverId], references: [id])
+  driverId                String?       @db.ObjectId
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   routes                  Route[]
