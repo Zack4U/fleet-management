@@ -20,7 +20,7 @@ const containerStyle = {
     height: "100%",
 };
 
-export default function RouteCreateComponent() {
+export const RouteCreateComponent = () => {
     const userApi = new User();
     const vehicleApi = new Vehicle();
     const routeApi = new Route();
@@ -520,4 +520,4 @@ export default function RouteCreateComponent() {
             )}
         </div>
     );
-}
+};

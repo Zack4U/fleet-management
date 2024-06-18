@@ -18,7 +18,7 @@ const containerStyle = {
     height: "100%",
 };
 
-export default function RouteViewComponent(selected) {
+export const RouteViewComponent = (selected) => {
     const dispatch = useDispatch();
     const vehicleApi = new Vehicle();
     const userApi = new User();
@@ -213,4 +213,4 @@ export default function RouteViewComponent(selected) {
             )}
         </div>
     );
-}
+};
