@@ -85,10 +85,27 @@ const getTasksByUser = async (req, res) => {
     }
 };
 
+const getMyTasks = async (req, res) => {
+    try {
+        const user = req.user;
+        const { id } = user;
+
+        const tasks = await prisma.task.findMany({
+            where: { userId: id },
+        });
+        res.status(201).json(tasks);
+    } catch (error) {
+        console.error("Error retrieving tasks:", error);
+        res.status(500).json({ error: "Error retrieving tasks" });
+    }
+};
+
 module.exports = {
     createTask,
     getTasks,
     getTaskById,
     updateTask,
     deleteTask,
+    getTasksByUser,
+    getMyTasks,
 };

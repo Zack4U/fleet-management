@@ -98,10 +98,24 @@ const deleteCooling = async (req, res) => {
     }
 };
 
+const getVehiclesCoolings = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await prisma.cooling.findMany({
+            where: { vehicleId: id },
+        });
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to get vehicle coolings" });
+    }
+};
+
 module.exports = {
     getCoolings,
     getCoolingById,
     createCooling,
     updateCooling,
     deleteCooling,
+    getVehiclesCoolings,
 };
