@@ -147,7 +147,7 @@ export const UserListComponent = () => {
             key: "avatar",
             render: (text, record) => (
                 <Avatar
-                    src={`http://localhost:3001/api/users/avatar/${record.avatar}`}
+                    src={`http://localhost:3001/api/avatar/${record.avatar}`}
                 />
             ),
         },
